@@ -71,5 +71,25 @@ class Primes
     factors = factorize(n) - [1]
     return factors.counts.values.map {|prime_pow| prime_pow + 1}.product
   end
+
+  def divisors(n)
+    factors = factorize(n) - [1, n]
+    divisors = Set.new [1]
+    factors.counts.each_pair do |p, pow|
+      (1..pow).each do |cur_pow|
+        divisors.merge(divisors.map {|d| d * p })
+      end
+    end
+    return divisors.to_a.sort!
+  end
+
+  def proper_divisors(n)
+    return divisors(n) - [n]
+  end
+
+  def amicable?(n)
+    divisor_sum = proper_divisors(n).sum
+    return divisor_sum != n && proper_divisors(divisor_sum).sum == n
+  end
 end
 
