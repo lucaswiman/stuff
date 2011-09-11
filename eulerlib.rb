@@ -6,7 +6,7 @@ end
 
 class Array
   def sum(s=0)
-    self.inject(0, :*)
+    self.inject(0, :+)
   end
 
   def product
