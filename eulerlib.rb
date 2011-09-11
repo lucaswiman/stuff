@@ -1,3 +1,9 @@
+class IntHash < Hash
+  def initialize
+    super {|h, k| h[k] = 0}
+  end
+end
+
 class Array
   def sum
     s = 0
@@ -13,6 +19,11 @@ class Array
     end
     return p
   end
+  def counts
+    count_hash = IntHash.new
+    self.each {|val| count_hash[val] += 1 }
+    return Hash[count_hash]
+  end
 end
 
 class String
@@ -20,3 +31,5 @@ class String
     self == reverse
   end
 end
+
+

@@ -45,7 +45,7 @@ class Primes
   end
 
   def factorize(n)
-    factors = []
+    factors = [1]
     primes_iter do |prime|
       return factors if n == 1
       while n % prime == 0

@@ -16,13 +16,13 @@ def prob2(max_fib=4000000)
     fib = Fib.fib(i)
     if fib < max_fib
       if (fib % 2) == 0
-        sum += fib 
+        sum += fib
         puts [i, fib].inspect
       end
     else
       break
     end
-    i+=1 
+    i+=1
   end
   return sum
 end
@@ -49,4 +49,17 @@ def prob4(n=3)
   end
   return biggest
 end
-puts prob4
+# puts prob4
+
+def prob5(n=20)
+  p_to_counts = IntHash.new
+  (1...n).each do |i|
+    P.factorize(i).counts.each_pair do |p, count|
+      p_to_counts[p] = [p_to_counts[p], count].max
+    end
+  end
+  return p_to_counts.map {|p, count| p**count }.product
+end
+# puts prob5(10)
+# puts prob5(20)
+
