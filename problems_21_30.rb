@@ -26,3 +26,18 @@ def problem22(url="http://projecteuler.net/project/names.txt")
 end
 # puts problem22
 
+def problem23(max_n=28123)
+  abundants = (1..max_n).select(&P.method(:abundant?))
+  abundant_set = Set.new abundants
+  is_abundant_sum = lambda do |k|
+    abundants.each do |abundant|
+      return false if abundant >= k
+      return true if abundant_set.include? (k - abundant)
+    end
+    return false
+  end
+  (1..max_n).select {|k| !is_abundant_sum.call(k) }.sum
+end
+
+# puts problem23
+

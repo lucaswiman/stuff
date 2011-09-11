@@ -91,5 +91,9 @@ class Primes
     divisor_sum = proper_divisors(n).sum
     return divisor_sum != n && proper_divisors(divisor_sum).sum == n
   end
+
+  def abundant?(n)
+    return proper_divisors(n).sum > n
+  end
 end
 
