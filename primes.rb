@@ -43,5 +43,20 @@ class Primes
       return @primes[-1]
     end
   end
+
+  def factorize(n)
+    factors = []
+    primes_iter do |prime|
+      return factors if n == 1
+      while n % prime == 0
+        factors << prime
+        n /= prime
+      end
+    end
+  end
+
+  def max_prime_factor(n)
+    return factorize(n).max
+  end
 end
 
