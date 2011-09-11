@@ -92,3 +92,13 @@ end
 
 # problem 16
 # puts (2**1000).to_s.to_a.map(&:to_i).sum
+
+# problem 17
+# See http://deveiate.org/projects/Linguistics/wiki/English
+require 'linguistics'  # gem install linguistics
+Linguistics::use :en
+def prob17(n0=1, n1=1000)
+  (n0..n1).to_a.map(&:en).map(&:numwords).join('').gsub(/[- ]/, '').length
+end
+
+# puts prob17
