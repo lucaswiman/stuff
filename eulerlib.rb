@@ -5,8 +5,7 @@ class IntHash < Hash
 end
 
 class Array
-  def sum
-    s = 0
+  def sum(s=0)
     self.each do |a|
       s += a
     end
@@ -29,6 +28,13 @@ class Array
       slice(i, window_length)
     end
   end
+  def cartesian_product(ary)
+    self.map do |val1|
+      ary.map do |val2|
+        [val1, val2]
+      end
+    end.sum([])
+  end
 end
 
 class String
@@ -39,5 +45,3 @@ class String
     split('')
   end
 end
-
-
