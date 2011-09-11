@@ -88,3 +88,7 @@ end
 
 # puts prob15(2, 2) == 6
 # puts prob15
+
+
+# problem 16
+# puts (2**1000).to_s.to_a.map(&:to_i).sum
