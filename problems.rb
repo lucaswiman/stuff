@@ -68,3 +68,6 @@ def prob6(n=100)
 end
 # puts prob6(10)
 # puts prob6(100)
+
+# Problem 7
+# puts P.nth_prime(10001)

@@ -58,5 +58,13 @@ class Primes
   def max_prime_factor(n)
     return factorize(n).max
   end
+
+  def nth_prime(n)
+    i = 1
+    primes_iter do |prime|
+      return prime if i == n
+      i += 1
+    end
+  end
 end
 
