@@ -3,6 +3,9 @@ require './fib'
 require './eulerlib'
 require './pythagoras'
 require './grid'
+require './triangle'
+
+P = Primes.new
 
 prob11_string = 
 '08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08
@@ -28,4 +31,22 @@ prob11_string =
 def prob11(gridstring, length=4)
   grid = Grid.from_string(gridstring).lines(4).map(&:product).max
 end
-puts prob11(prob11_string)
+# puts prob11(prob11_string)
+
+def prob12(num_divisors=500)
+  Triangle.numbers do |triangle_num|
+    return triangle_num if P.num_divisors(triangle_num) > num_divisors
+  end
+end
+# puts prob12(5) == 28
+# puts prob12(500)
+
+def prob13(url="http://projecteuler.net/index.php?section=problems&id=13")
+  require 'nokogiri'
+  require 'open-uri'
+  document = Nokogiri::HTML(open(url))
+  elem = document.xpath('.//div[@class="problem_content"]/div')
+  texts = elem.children.select(&:text?).map(&:to_s).map(&:strip)
+  return texts.map {|text| text.to_i }.sum.to_s.slice(0, 10)
+end
+# puts prob13

@@ -66,5 +66,10 @@ class Primes
       i += 1
     end
   end
+
+  def num_divisors(n)
+    factors = factorize(n) - [1]
+    return factors.counts.values.map {|prime_pow| prime_pow + 1}.product
+  end
 end
 
