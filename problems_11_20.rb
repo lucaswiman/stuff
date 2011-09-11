@@ -4,8 +4,10 @@ require './eulerlib'
 require './pythagoras'
 require './grid'
 require './triangle'
+require './collatz'
 
 P = Primes.new
+C = Collatz.new
 
 prob11_string = 
 '08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08
@@ -50,3 +52,18 @@ def prob13(url="http://projecteuler.net/index.php?section=problems&id=13")
   return texts.map {|text| text.to_i }.sum.to_s.slice(0, 10)
 end
 # puts prob13
+
+def prob14(max_n=1000000)
+  biggest_length = 0
+  biggest_length_n = nil
+  (1..max_n).each do |n|
+    l = C.length(n)
+    if l > biggest_length
+      biggest_length = l
+      biggest_length_n = n
+    end
+  end
+  return biggest_length_n
+end
+
+# puts prob14
