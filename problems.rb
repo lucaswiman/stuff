@@ -38,8 +38,8 @@ def prob4(n=3)
   biggest = nil
   biggest_factor = 10**n - 1
   smallest_factor = 10**(n-1)
-  (smallest_factor...biggest_factor).each do |i|
-    (i...biggest_factor).each do |j|
+  (smallest_factor..biggest_factor).each do |i|
+    (i..biggest_factor).each do |j|
       prod = i * j
       if prod > max_palindrome && prod.to_s.palindrome?
         max_palindrome = prod
@@ -53,7 +53,7 @@ end
 
 def prob5(n=20)
   p_to_counts = IntHash.new
-  (1...n).each do |i|
+  (1..n).each do |i|
     P.factorize(i).counts.each_pair do |p, count|
       p_to_counts[p] = [p_to_counts[p], count].max
     end
