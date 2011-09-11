@@ -31,4 +31,22 @@ end
 def prob3(n=600851475143)
   return P.max_prime_factor n
 end
-puts prob3
+# puts prob3
+
+def prob4(n=3)
+  max_palindrome = 0
+  biggest = nil
+  biggest_factor = 10**n - 1
+  smallest_factor = 10**(n-1)
+  (smallest_factor...biggest_factor).each do |i|
+    (i...biggest_factor).each do |j|
+      prod = i * j
+      if prod > max_palindrome && prod.to_s.palindrome?
+        max_palindrome = prod
+        biggest = [i, j]
+      end
+    end
+  end
+  return biggest
+end
+puts prob4
