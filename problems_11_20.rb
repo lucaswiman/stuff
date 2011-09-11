@@ -67,3 +67,24 @@ def prob14(max_n=1000000)
 end
 
 # puts prob14
+
+def prob15(size_x=20, size_y=20, solutions={})
+  if solutions.key? [size_x, size_y]
+    return solutions[[size_x, size_y]]
+  end
+
+  solution = nil
+  if size_x == 0
+    solution = 1
+  elsif size_y == 0
+    solution = 1
+  end
+  if solution.nil?
+    solution = prob15(size_x - 1, size_y, solutions) + prob15(size_x, size_y - 1, solutions)
+  end
+  solutions[[size_x, size_y]] = solution
+  return solution
+end
+
+# puts prob15(2, 2) == 6
+# puts prob15
