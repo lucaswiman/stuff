@@ -80,10 +80,21 @@ def prob8(window_length, s)
 end
 # puts prob8(5, prob8_string)
 
+
 def prob9(sum=1000)
   Pythagoras.triples do |triple|
     return triple.product if triple.sum == sum
   end
 end
-
 # puts prob9
+
+
+def prob10(max_prime=2000000)
+  sum = 0
+  P.primes_iter do |p|
+    return sum if p >= max_prime
+    sum += p
+  end
+end
+puts prob10(10) == 17
+puts prob10
