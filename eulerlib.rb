@@ -35,11 +35,18 @@ class Array
 end
 
 class String
+
   def palindrome?
     self == reverse
   end
+
   def to_a
     split('')
+  end
+
+  def letter_sum
+    a = 'a'.bytes.first
+    return self.downcase.gsub(/[^a-z]/, '').bytes.map {|byte| byte - a + 1 }.sum
   end
 end
 
