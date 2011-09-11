@@ -1,6 +1,7 @@
 require './primes'
 require './fib'
 require './eulerlib'
+require './pythagoras'
 
 P = Primes.new
 
@@ -78,3 +79,11 @@ def prob8(window_length, s)
   return s.to_a.map(&:to_i).windows(window_length).map(&:product).max
 end
 # puts prob8(5, prob8_string)
+
+def prob9(sum=1000)
+  Pythagoras.triples do |triple|
+    return triple.product if triple.sum == sum
+  end
+end
+
+# puts prob9
