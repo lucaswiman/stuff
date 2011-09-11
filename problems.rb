@@ -63,3 +63,8 @@ end
 # puts prob5(10)
 # puts prob5(20)
 
+def prob6(n=100)
+  return (1..n).to_a.sum ** 2 - ((1..n).map {|i| i**2}.sum)
+end
+# puts prob6(10)
+# puts prob6(100)
