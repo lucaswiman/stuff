@@ -9,7 +9,7 @@ require './collatz'
 P = Primes.new
 C = Collatz.new
 
-prob11_string = 
+prob11_string =
 '08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08
 49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 04 56 62 00
 81 49 31 73 55 79 14 29 93 71 40 67 53 88 30 03 49 13 36 65
@@ -33,15 +33,15 @@ prob11_string =
 def prob11(gridstring, length=4)
   grid = Grid.from_string(gridstring).lines(4).map(&:product).max
 end
-# puts prob11(prob11_string)
+puts prob11(prob11_string)
 
 def prob12(num_divisors=500)
   Triangle.numbers do |triangle_num|
     return triangle_num if P.num_divisors(triangle_num) > num_divisors
   end
 end
-# puts prob12(5) == 28
-# puts prob12(500)
+puts prob12(5) == 28
+puts prob12(500)
 
 def prob13(url="http://projecteuler.net/index.php?section=problems&id=13")
   require 'nokogiri'
@@ -51,7 +51,7 @@ def prob13(url="http://projecteuler.net/index.php?section=problems&id=13")
   texts = elem.children.select(&:text?).map(&:to_s).map(&:strip)
   return texts.map {|text| text.to_i }.sum.to_s.slice(0, 10)
 end
-# puts prob13
+puts prob13
 
 def prob14(max_n=1000000)
   biggest_length = 0
@@ -66,7 +66,7 @@ def prob14(max_n=1000000)
   return biggest_length_n
 end
 
-# puts prob14
+puts prob14
 
 def prob15(size_x=20, size_y=20, solutions={})
   if solutions.key? [size_x, size_y]
@@ -86,12 +86,12 @@ def prob15(size_x=20, size_y=20, solutions={})
   return solution
 end
 
-# puts prob15(2, 2) == 6
-# puts prob15
+puts prob15(2, 2) == 6
+puts prob15
 
 
 # problem 16
-# puts (2**1000).to_s.to_a.map(&:to_i).sum
+puts (2**1000).to_s.to_a.map(&:to_i).sum
 
 # problem 17
 # See http://deveiate.org/projects/Linguistics/wiki/English
@@ -101,4 +101,36 @@ def prob17(n0=1, n1=1000)
   (n0..n1).to_a.map(&:en).map(&:numwords).join('').gsub(/[- ]/, '').length
 end
 
-# puts prob17
+puts prob17
+
+prob18_string =
+'75
+95 64
+17 47 82
+18 35 87 10
+20 04 82 47 65
+19 01 23 75 03 34
+88 02 77 73 07 63 67
+99 65 04 28 06 16 70 92
+41 41 26 56 83 40 80 70 33
+41 48 72 33 47 32 37 16 94 29
+53 71 44 65 25 43 91 52 97 51 14
+70 11 33 28 77 73 17 78 39 68 17 57
+91 71 52 38 17 14 91 43 58 50 27 29 48
+63 66 04 68 89 53 67 30 73 16 69 87 40 31
+04 62 98 27 23 09 70 98 73 93 38 53 60 04 23'
+def prob18(triangle_string)
+  TriangleGrid.from_string(triangle_string).max_sum
+end
+
+puts prob18(prob17_string)
+
+require 'date'
+def prob19(weekday=7, start_year=1901, end_year=2000, month_day='01')
+  years_months = (start_year..end_year).to_a.cartesian_product((1..12))
+  years_months.map {|year, month| Date.strptime("#{year}-#{month}-#{month_day}", '%Y-%m-%d').cwday }.counts[weekday]
+end
+puts prob19
+
+# prob20
+puts 100.factorial.to_s.to_a.map(&:to_i).sum

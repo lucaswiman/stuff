@@ -6,28 +6,25 @@ end
 
 class Array
   def sum(s=0)
-    self.each do |a|
-      s += a
-    end
-    return s
+    self.inject(0, :*)
   end
+
   def product
-    p = 1
-    self.each do |a|
-      p *= a
-    end
-    return p
+    self.inject(1, :*)
   end
+
   def counts
     count_hash = IntHash.new
     self.each {|val| count_hash[val] += 1 }
     return Hash[count_hash]
   end
+
   def windows(window_length)
     (0..length - window_length).map do |i|
       slice(i, window_length)
     end
   end
+
   def cartesian_product(ary)
     self.map do |val1|
       ary.map do |val2|
@@ -43,5 +40,11 @@ class String
   end
   def to_a
     split('')
+  end
+end
+
+class Integer
+  def factorial
+    (1..self).to_a.product
   end
 end
