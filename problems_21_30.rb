@@ -63,3 +63,30 @@ end
 
 # puts problem25
 
+def find_period(s)
+  s = s.to_s
+  p = 1
+  while p < s.length / 2
+    if s[0, p] == s[p, p]
+      return p
+    end
+    p += 1
+  end
+  return -1
+end
+
+def problem26(n=1000)
+  # HACK assume arbitrarily that 1/i cannot have a period bigger than i (is this true?)
+  best = 7
+  best_period = 6
+  ((best + 1)..n).each do |i|
+    period = find_period((10 ** (10 * n)) / i)
+    if period > best_period
+      best_period = period
+      best = i
+    end
+  end
+  return [best, best_period]
+end
+
+puts problem26.inspect
