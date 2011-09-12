@@ -30,7 +30,7 @@ end
 puts prob2
 
 def prob3(n=600851475143)
-  return P.max_prime_factor n
+  return n.factors.max
 end
 puts prob3
 
@@ -55,7 +55,7 @@ puts prob4
 def prob5(n=20)
   p_to_counts = IntHash.new
   (1..n).each do |i|
-    P.factorize(i).counts.each_pair do |p, count|
+    i.factors.counts.each_pair do |p, count|
       p_to_counts[p] = [p_to_counts[p], count].max
     end
   end

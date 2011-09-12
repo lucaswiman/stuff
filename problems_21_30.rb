@@ -9,10 +9,9 @@ require './grid'
 require './triangle'
 require './collatz'
 
-P = Primes.new
 
 def problem21(n=10000)
-  (2...n).select(&P.method(:amicable?)).sum
+  (2...n).select(&Integer::Primes.method(:amicable?)).sum
 end
 # puts problem21
 
@@ -89,4 +88,33 @@ def problem26(n=1000)
   return [best, best_period]
 end
 
-puts problem26.inspect
+# puts problem26.inspect
+
+def problem27(max_modulus=1000)
+  best = nil
+  longest_run = 0
+  Integer::Primes.primes_iter(max_modulus) do |b_modulus|
+    # b must be prime, since n=0 is allowed
+    [-1, 1].each do |sign|
+      b = sign * b_modulus
+      (-(max_modulus - 1)..(max_modulus - 1)).each do |a|
+        run = 0
+        (0...b.abs).each do |n|
+          if (n ** 2 + a * n + b).prime?
+            run += 1
+          else
+            break
+          end
+        end
+        if run > longest_run
+          longest_run = run
+          best = [a, b]
+          puts [longest_run, best].inspect
+        end
+      end
+    end
+  end
+  return best.product
+end
+
+puts problem27

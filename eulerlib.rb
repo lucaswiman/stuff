@@ -1,3 +1,13 @@
+class Count
+  def self.iter(min=0)
+    i = min
+    while true
+      yield i
+      i += 1
+    end
+  end
+end
+
 class IntHash < Hash
   def initialize
     super {|h, k| h[k] = 0}
@@ -6,7 +16,7 @@ end
 
 class Array
   def sum(s=0)
-    self.inject(0, :+)
+    self.inject(s, :+)
   end
 
   def product

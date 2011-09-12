@@ -8,25 +8,15 @@ class Primes
     @cur_n = 5
   end
 
-  def prime?(n)
-    if @prime_set.include? n
-      return true
-    end
-    sqrt = Math.sqrt(n)
-    primes_iter do |prime|
-      if prime > sqrt
-        break
-      end
-      return false if n % prime == 0
-    end
-    return true
-  end
-
-  def primes_iter
+  def primes_iter(max=nil)
     i = 0
     while true
-      yield next_prime(i)
+      p = next_prime(i)
+      yield p
       i += 1
+      if max && p >= max
+        break
+      end
     end 
   end
 
@@ -34,7 +24,7 @@ class Primes
     if i < @primes.length
       return @primes[i]
     else
-      while !prime? @cur_n
+      while !@cur_n.prime?
         @cur_n += 2
       end
       @primes << @cur_n
@@ -42,21 +32,6 @@ class Primes
       @cur_n += 2
       return @primes[-1]
     end
-  end
-
-  def factorize(n)
-    factors = [1]
-    primes_iter do |prime|
-      return factors if n == 1
-      while n % prime == 0
-        factors << prime
-        n /= prime
-      end
-    end
-  end
-
-  def max_prime_factor(n)
-    return factorize(n).max
   end
 
   def nth_prime(n)
@@ -67,33 +42,64 @@ class Primes
     end
   end
 
-  def num_divisors(n)
-    factors = factorize(n) - [1]
-    return factors.counts.values.map {|prime_pow| prime_pow + 1}.product
-  end
-
-  def divisors(n)
-    factors = factorize(n) - [1, n]
-    divisors = Set.new [1]
-    factors.counts.each_pair do |p, pow|
-      (1..pow).each do |cur_pow|
-        divisors.merge(divisors.map {|d| d * p })
-      end
-    end
-    return divisors.to_a.sort!
-  end
-
-  def proper_divisors(n)
-    return divisors(n) - [n]
-  end
-
-  def amicable?(n)
-    divisor_sum = proper_divisors(n).sum
-    return divisor_sum != n && proper_divisors(divisor_sum).sum == n
-  end
-
-  def abundant?(n)
-    return proper_divisors(n).sum > n
-  end
 end
 
+class Integer
+  Primes = Primes.new
+
+  def prime?
+    return false if self < 2
+    if Integer::Primes.prime_set.include? self
+      return true
+    end
+    sqrt = Math.sqrt(self)
+    Integer::Primes.primes_iter do |prime|
+      if prime > sqrt
+        break
+      end
+      return false if self % prime == 0
+    end
+    return true
+  end
+
+  def num_divisors
+    nontrivial_factors = factors - [1]
+    return nontrivial_factors.counts.values.map {|prime_pow| prime_pow + 1}.product
+  end
+
+  def divisors
+    proper_factors = self.factors - [1, self]
+    divisor_set = Set.new [1]
+    factors.counts.each_pair do |p, pow|
+      (1..pow).each do |cur_pow|
+        divisor_set.merge(divisor_set.map {|d| d * p })
+      end
+    end
+    return divisor_set.to_a.sort!
+  end
+
+  def proper_divisors
+    return divisors - [self]
+  end
+
+  def amicable?
+    divisor_sum = proper_divisors.sum
+    return divisor_sum != self && divisor_sum.proper_divisors.sum == self
+  end
+
+  def abundant?
+    return proper_divisors.sum > self
+  end
+
+  def factors
+    facts = [1]
+    n = self
+    Integer::Primes.primes_iter do |prime|
+      return facts if n == 1
+      while n % prime == 0
+        facts << prime
+        n /= prime
+      end
+    end
+  end
+end

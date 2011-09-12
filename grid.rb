@@ -22,7 +22,7 @@ class Grid < BaseGrid
   end
 
   def lines_at(x, y, length)
-    self::DIRECTIONS.map do |dx, dy|
+    Grid::DIRECTIONS.map do |dx, dy|
       (0...length).map do |i|
         val_at(x + i * dx, y + i * dy) 
       end

@@ -37,7 +37,7 @@ puts prob11(prob11_string)
 
 def prob12(num_divisors=500)
   Triangle.numbers do |triangle_num|
-    return triangle_num if P.num_divisors(triangle_num) > num_divisors
+    return triangle_num if triangle_num.num_divisors > num_divisors
   end
 end
 puts prob12(5) == 28
@@ -123,7 +123,7 @@ def prob18(triangle_string)
   TriangleGrid.from_string(triangle_string).max_sum
 end
 
-puts prob18(prob17_string)
+puts prob18(prob18_string)
 
 require 'date'
 def prob19(weekday=7, start_year=1901, end_year=2000, month_day='01')
