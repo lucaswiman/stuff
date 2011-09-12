@@ -41,3 +41,14 @@ end
 
 # puts problem23
 
+def problem24(lst=[0,1,2,3,4,5,6,7,8,9], size=1000000)
+  count = 0
+  lst.lexicographic_permutations do |perm|
+    count += 1
+    if count == size
+      return perm.join('')
+    end
+  end
+end
+
+# puts problem24

@@ -32,6 +32,19 @@ class Array
       end
     end.sum([])
   end
+
+  def lexicographic_permutations
+    if empty?
+      yield []
+    else
+      first = sort
+      first.each do |elem|
+        (first - [elem]).lexicographic_permutations do |perm|
+          yield [elem] + perm
+        end
+      end
+    end
+  end
 end
 
 class String
