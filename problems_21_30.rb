@@ -52,3 +52,14 @@ def problem24(lst=[0,1,2,3,4,5,6,7,8,9], size=1000000)
 end
 
 # puts problem24
+
+def problem25(digits=1000)
+  i = 0
+  while true
+    i += 1
+    return i + 1 if Fib.fib(i).to_s.length >= digits
+  end
+end
+
+# puts problem25
+
