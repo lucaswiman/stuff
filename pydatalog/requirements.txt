@@ -1,1 +1,2 @@
 pyDatalog==0.14.5
+ipython==2.1.0
