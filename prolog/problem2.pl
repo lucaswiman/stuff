@@ -19,26 +19,22 @@ fib(N, Fib) :-
   asserta(fib(N, Fib) :- !)
 .
 
-
-% http://rosettacode.org/wiki/Fibonacci_sequence#With_lazy_lists_3
-fib_lazy([0,1|X]) :-
-  fib_lazy_helper(0,1,X)
+applicable(Fib, Max) :-
+  0 is Fib mod 2,
+  Fib < Max
 .
 
-fib_lazy_helper(A,B,X) :-
-  freeze(X, (C is A+B, X=[C|Y], fib_lazy_helper(B,C,Y)))
-.
-
-sum_list([], []).
-sum_list([Elem|List], [Elem|Sums]) :-
-  sum_list_helper(Elem, List, Sums)
-.
-sum_list_helper(_, [], []).
-sum_list_helper(Acc, [Elem|List], Sums) :-
-  freeze(Sums, (
-      NextAcc is Acc + Elem,
-      Sums = [NextAcc|NextSums],
-      sum_list_helper(NextAcc, List, NextSums)
-    )
+problem2_helper(N, Acc, Max, Solution) :-
+  fib(N, Fib),
+  writeln([N, Acc]),
+  (
+    (not(applicable(Fib, Max)), Solution is Acc);
+    % Not assigning N+3 to a variable yields the following vexing error:
+    % ERROR: succ/2: Type error: `integer' expected, found `2+3'
+    (Wtf is N+3, problem2_helper(Wtf, Acc+Fib, Max, Solution))
   )
+.
+
+problem2(Max, Solution) :-
+  problem2_helper(2, 0, Max, Solution)
 .
