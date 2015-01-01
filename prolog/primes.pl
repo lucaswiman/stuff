@@ -23,3 +23,9 @@ consecutive_primes_helper(Prime1, Prime2, Test) :-
 consecutive_primes(Prime1, Prime2) :-
   consecutive_primes_helper(Prime1, Prime2, Prime1 + 2)
 .
+
+primes_list([X, Y|Xs]) :-
+  freeze(Xs, (consecutive_primes(X, Y), primes_list_helper([Y|Xs])))
+.
+
+primes_list(AllPrimes), append([2], _, AllPrimes).
