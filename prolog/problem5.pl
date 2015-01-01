@@ -1,12 +1,13 @@
+:- [euclid].
 
-first_nontrivial_odd_divisor(K, Div, Test) :-
-  0 is K mod Test -> Div is Test;
-  Test * Test > K -> false;
-  Next is Test + 2, first_nontrivial_odd_divisor(K, Div, Next)
+% 2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+%
+% What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+
+lcm_list([], 1).
+lcm_list([X|Xs], LCM) :-
+  lcm_list(Xs, LCM1),
+  lcm(X, LCM1, LCM)
 .
 
-is_prime(K) :- 
-  K is 2;
-  not(0 is K mod 2), not(first_nontrivial_odd_divisor(K, _, 3));
-  false
-.
+% numlist(1, 20, List), lcm_list(List, LCM), writeln(LCM).
