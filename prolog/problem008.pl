@@ -60,5 +60,5 @@ problem8(FileName, WindowSize, Max) :-
   max_list(Products, Max)
 .
 
-% problem8("./problem8.data", 4, Max), writeln(Max).
-% problem8("./problem8.data", 13, Max), writeln(Max).
+% problem8("./problem008.data", 4, Max), writeln(Max).
+% problem8("./problem008.data", 13, Max), writeln(Max).
