@@ -1,6 +1,7 @@
 from parsimonious.grammar import Grammar
 
 from . import examples_test
+from .iso8601_timestamp import ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES
 
 
 test_examples_test = examples_test(
@@ -9,3 +10,6 @@ test_examples_test = examples_test(
     ['asdf', 'jkl;'],
     ['qwer', ''],
 )
+
+test_iso8601 = examples_test(
+    'test_iso8601', ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES)
