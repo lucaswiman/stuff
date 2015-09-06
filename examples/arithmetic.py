@@ -5,15 +5,17 @@ The precedence rules have not been well-thought-through, and this shouldn't
 be used for any serious work.
 """
 from __future__ import print_function, unicode_literals
+import operator
 
 from parsimonious.grammar import Grammar
+from parsimonious.nodes import NodeVisitor
 
 from . import run_examples
 
 ARITHMETIC_RAW_GRAMMAR = r"""
     expr = p2_expr / p1_expr / p0_expr
-    addition_expr = p1_expr PLUS p2_expr (PLUS p2_expr)*
-    multiplication_expr = p0_expr MUL p1_expr (MUL p1_expr)*
+    addition_expr = p1_expr (PLUS p2_expr)+
+    multiplication_expr = p0_expr (MUL p1_expr)+
     term = NUMERIC_LITERAL / identifier / parenthesized_expr
     parenthesized_expr = "(" expr ")"
     identifier = ~"[^\d\W]\w*"i
@@ -30,6 +32,46 @@ ARITHMETIC_RAW_GRAMMAR = r"""
     PLUS = "+"
 """
 ARITHMETIC = Grammar(ARITHMETIC_RAW_GRAMMAR)
+
+
+class ArithmeticEvaluator(NodeVisitor):
+    def __init__(self, namespace):
+        self.namespace = namespace
+
+    @classmethod
+    def eval(cls, expr, **namespace):
+        tree = ARITHMETIC.parse(expr)
+        return ArithmeticEvaluator(namespace).visit(tree)
+
+    def generic_visit(self, node, children):
+        if isinstance(children, list) and len(children) == 1:
+            # This means the sub-nodes have already been evaluated,
+            # so just return the evaluated value.
+            return children[0]
+        return children or node.text
+
+    def visit_addition_expr(self, node, (expr1, expressions)):
+        # Every other entry is a '+', so filter those out.
+        non_operator_expressions = expressions[1::2]
+        return expr1 + sum(non_operator_expressions)
+
+    def visit_multiplication_expr(self, node, (expr1, expressions)):
+        # Every other entry is a '*', so filter those out.
+        non_operator_expressions = expressions[1::2]
+        return expr1 * reduce(operator.mul, non_operator_expressions)
+
+    def visit_identifier(self, node, children):
+        return self.namespace[node.text]
+
+    def visit_INTEGER_LITERAL(self, node, children):
+        return int(node.text)
+
+    def visit_FLOAT_LITERAL(self, node, children):
+        return float(node.text)
+
+    def visit_parenthesized_expr(self, node, (lparen, expr, rparen)):
+        return expr
+
 
 ARITHMETIC_EXAMPLES = (
     'x',
@@ -54,9 +96,6 @@ ARITHMETIC_NON_EXAMPLES = (
     '(x',
     'x)',
 )
-
-def arithmetic_eval(expr, **namespace):
-    return eval(expr, namespace)
 
 if __name__ == "__main__":
     run_examples(ARITHMETIC, ARITHMETIC_EXAMPLES, ARITHMETIC_NON_EXAMPLES)
