@@ -26,7 +26,7 @@ from __future__ import print_function
 
 from parsimonious.grammar import Grammar
 
-from . import run_examples, examples_test
+from . import run_examples
 
 ISO8601_RAW_GRAMMAR = r"""
     date_time       = full_date "T" full_time
