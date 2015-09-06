@@ -55,5 +55,8 @@ ARITHMETIC_NON_EXAMPLES = (
     'x)',
 )
 
+def arithmetic_eval(expr, **namespace):
+    return eval(expr, namespace)
+
 if __name__ == "__main__":
     run_examples(ARITHMETIC, ARITHMETIC_EXAMPLES, ARITHMETIC_NON_EXAMPLES)
