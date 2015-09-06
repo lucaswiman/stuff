@@ -12,7 +12,7 @@ from . import run_examples
 
 ARITHMETIC_RAW_GRAMMAR = r"""
     expr = multiplication_expr / term
-    multiplication_expr = term MUL term
+    multiplication_expr = term MUL term (MUL term)*
     term = NUMERIC_LITERAL / identifier / parenthesized_expr
     parenthesized_expr = "(" expr ")"
     identifier = ~"[^\d\W]\w*"i
@@ -28,6 +28,7 @@ ARITHMETIC_EXAMPLES = (
     'x',
     'x2',
     'x*y',
+    'x*y*z',
     '(x*y)',
     'nan',
     '1.0989e7*x',
