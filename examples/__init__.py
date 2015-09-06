@@ -15,6 +15,8 @@ def assert_parses(grammar, example):
     try:
         grammar.parse(example)
     except Exception as e:
+        print(repr(example))
+        print(repr(e))
         raise ParsingFailureAssertion(grammar, example, e)
 
 def assert_does_not_parse(grammar, example):
