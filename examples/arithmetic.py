@@ -42,7 +42,7 @@ ARITHMETIC_EXAMPLES = (
     'x*(y+z)',
     'x+y*z',
     '(x*y)+z',
-    # 'x*y+z',  # Fails
+    'x*y+z',
 )
 ARITHMETIC_NON_EXAMPLES = (
     '2x',
