@@ -11,14 +11,17 @@ from parsimonious.grammar import Grammar
 from . import run_examples
 
 ARITHMETIC_RAW_GRAMMAR = r"""
-    expr = addition_expr /
-        multiplication_expr /
-        term
-    addition_expr = term PLUS expr (PLUS expr)*
-    multiplication_expr = term MUL term (MUL term)*
+    expr = p2_expr / p1_expr / p0_expr
+    addition_expr = p1_expr PLUS p2_expr (PLUS p2_expr)*
+    multiplication_expr = p0_expr MUL p1_expr (MUL p1_expr)*
     term = NUMERIC_LITERAL / identifier / parenthesized_expr
     parenthesized_expr = "(" expr ")"
     identifier = ~"[^\d\W]\w*"i
+
+    # Precedence rules:
+    p0_expr = term
+    p1_expr = multiplication_expr / p0_expr
+    p2_expr = addition_expr / p1_expr
 
     INTEGER_LITERAL = ~"[1-9]\d*" !"."
     FLOAT_LITERAL = ~"nan|inf|[-+]?[0-9]*\.?[0-9]+(e[-+]?[0-9]+)?"i
