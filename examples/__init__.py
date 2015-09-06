@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 from nose.tools import assert_raises
 from nose.tools import nottest
@@ -48,6 +48,8 @@ def run_examples(grammar, examples, non_examples):
     Runs parsing of examples, and asserts that non_examples do not parse.
     """
     for example in examples:
-        print(example, grammar.parse(example))
+        print()
+        print(repr(example))
+        print(grammar.parse(example))
     for example in non_examples:
         assert_does_not_parse(grammar, example)

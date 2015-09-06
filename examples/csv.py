@@ -58,3 +58,6 @@ CSV_NON_EXAMPLES = (
     ',",',
     b'\x00',
 )
+
+if __name__ == "__main__":
+    run_examples(CSV, CSV_EXAMPLES, CSV_NON_EXAMPLES)
