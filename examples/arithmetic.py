@@ -11,8 +11,10 @@ from parsimonious.grammar import Grammar
 from . import run_examples
 
 ARITHMETIC_RAW_GRAMMAR = r"""
-    expr = multiplication_expr / addition_expr / term
-    addition_expr = term PLUS term (PLUS term)*
+    expr = addition_expr /
+        multiplication_expr /
+        term
+    addition_expr = term PLUS expr (PLUS expr)*
     multiplication_expr = term MUL term (MUL term)*
     term = NUMERIC_LITERAL / identifier / parenthesized_expr
     parenthesized_expr = "(" expr ")"
@@ -38,6 +40,9 @@ ARITHMETIC_EXAMPLES = (
     'x+y+z',
     'x+(y*z)',
     'x*(y+z)',
+    'x+y*z',
+    '(x*y)+z',
+    # 'x*y+z',  # Fails
 )
 ARITHMETIC_NON_EXAMPLES = (
     '2x',
