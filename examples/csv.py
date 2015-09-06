@@ -18,13 +18,13 @@ The original BNF grammar is here:
     CRLF = CR LF
     TEXTDATA = #'[\u0020-\u0021\u0023-\u002B\u002D-\u007E]'
 """
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 from parsimonious.grammar import Grammar
 
 from . import run_examples
 
-CSV_RAW_GRAMMAR = ur"""
+CSV_RAW_GRAMMAR = r"""
     file = (header CRLF)? record (CRLF record)* CRLF?
     header = name (COMMA name)*
     record = field (COMMA field)*
@@ -56,5 +56,5 @@ CSV_EXAMPLES = (
 
 CSV_NON_EXAMPLES = (
     ',",',
-    '\x00',
+    b'\x00',
 )
