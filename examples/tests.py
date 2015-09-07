@@ -2,23 +2,12 @@ from nose.tools import assert_equal
 from parsimonious.grammar import Grammar
 
 from . import examples_test
-from .iso8601_timestamp import ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES
-from .csv import CSV, CSV_EXAMPLES, CSV_NON_EXAMPLES
 from .arithmetic import (ARITHMETIC, ARITHMETIC_EXAMPLES,
     ARITHMETIC_NON_EXAMPLES, ArithmeticEvaluator)
+from .csv import CSV, CSV_EXAMPLES, CSV_NON_EXAMPLES
+from .iso8601_timestamp import ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES
+from .string_tree import STRING_TREE, STRING_TREE_EXAMPLES, STRING_TREE_NON_EXAMPLES
 
-
-test_examples_test = examples_test(
-    'examples_test',
-    Grammar(r'foo = "asdf" / "jkl;"'),
-    ['asdf', 'jkl;'],
-    ['qwer', ''],
-)
-
-test_iso8601 = examples_test(
-    'test_iso8601', ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES)
-
-test_csv = examples_test('test_csv', CSV, CSV_EXAMPLES, CSV_NON_EXAMPLES)
 
 test_arithmetic = examples_test(
     'test_arithmetic',
@@ -66,3 +55,20 @@ def test_float_eval():
 
     for expr in ARITHMETIC_FLOAT_EXPRESSIONS:
         yield assert_float_eval, expr
+
+
+test_csv = examples_test('test_csv', CSV, CSV_EXAMPLES, CSV_NON_EXAMPLES)
+
+test_examples_test = examples_test(
+    'examples_test',
+    Grammar(r'foo = "asdf" / "jkl;"'),
+    ['asdf', 'jkl;'],
+    ['qwer', ''],
+)
+
+test_iso8601 = examples_test(
+    'test_iso8601', ISO8601, ISO8601_EXAMPLES, ISO8601_NON_EXAMPLES)
+
+test_string_tree = examples_test(
+    'test_string_tree', STRING_TREE, STRING_TREE_EXAMPLES, STRING_TREE_NON_EXAMPLES
+)
