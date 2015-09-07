@@ -35,13 +35,14 @@ ARITHMETIC = Grammar(ARITHMETIC_RAW_GRAMMAR)
 
 
 class ArithmeticEvaluator(NodeVisitor):
+    grammar = ARITHMETIC
+
     def __init__(self, namespace):
         self.namespace = namespace
 
     @classmethod
     def eval(cls, expr, **namespace):
-        tree = ARITHMETIC.parse(expr)
-        return ArithmeticEvaluator(namespace).visit(tree)
+        return cls(namespace).parse(expr)
 
     def generic_visit(self, node, children):
         if isinstance(children, list) and len(children) == 1:
