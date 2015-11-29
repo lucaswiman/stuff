@@ -8,7 +8,7 @@ from . import run_examples
 
 LAMBDA_CALCULUS = Grammar('''
     inline_block = function (space name+)* ":" space? expressions
-    expressions = expr / (expr expressions)
+    expressions = expr+
     expr = ("(" expressions ")") / name
     function = ~"[A-Z][_a-zA-Z]*"
     name = ~"[_a-zA-Z]+"
@@ -16,6 +16,7 @@ LAMBDA_CALCULUS = Grammar('''
 ''')
 
 LAMBDA_EXAMPLES = (
+    'PackageState num cont: cont',
     'PackageState num cont: cont num',
 )
 LAMBDA_NON_EXAMPLES = (
