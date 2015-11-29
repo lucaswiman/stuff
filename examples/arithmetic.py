@@ -13,16 +13,15 @@ from parsimonious.nodes import NodeVisitor
 from . import run_examples
 
 ARITHMETIC_RAW_GRAMMAR = r"""
-    expr = p2_expr / p1_expr / p0_expr
+    expr = p2_expr / p1_expr
     addition_expr = p1_expr (PLUS p2_expr)+
-    multiplication_expr = p0_expr (MUL p1_expr)+
+    multiplication_expr = term (MUL p1_expr)+
     term = NUMERIC_LITERAL / identifier / parenthesized_expr
     parenthesized_expr = "(" expr ")"
     identifier = ~"[^\d\W]\w*"i
 
     # Precedence rules:
-    p0_expr = term
-    p1_expr = multiplication_expr / p0_expr
+    p1_expr = multiplication_expr / term
     p2_expr = addition_expr / p1_expr
 
     INTEGER_LITERAL = ~"[1-9]\d*" !"."
@@ -80,7 +79,7 @@ ARITHMETIC_EXAMPLES = (
     'x*y',
     'x*y*z',
     '(x*y)',
-    'nan',
+    # 'nan',
     '1.0989e7*x',
     '((x*y)*(y*x))',
     'x+y+z',
@@ -100,3 +99,15 @@ ARITHMETIC_NON_EXAMPLES = (
 
 if __name__ == "__main__":
     run_examples(ARITHMETIC, ARITHMETIC_EXAMPLES, ARITHMETIC_NON_EXAMPLES)
+    from sympy import symbols
+    from parsimonious.exceptions import ParseError
+    from nose.tools import assert_equal, assert_raises
+    x, y, z, x2 = symbols('x y z x2')
+    for ex in ARITHMETIC_EXAMPLES + ARITHMETIC_NON_EXAMPLES:
+        try:
+            expected = eval(ex, locals())
+        except SyntaxError:
+            with assert_raises(ParseError):
+                ARITHMETIC.parse(ex)
+            continue
+        assert_equal(ArithmeticEvaluator.eval(ex, **locals()), expected)  

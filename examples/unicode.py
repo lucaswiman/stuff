@@ -4,10 +4,8 @@ Contrived grammar for handling &ldquo; &rdquo; quote expressions
 """
 
 from __future__ import print_function
-import operator
 
 from parsimonious.grammar import Grammar
-from parsimonious.nodes import NodeVisitor
 
 from . import run_examples
 
