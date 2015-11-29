@@ -7,11 +7,12 @@ from parsimonious.nodes import NodeVisitor
 from . import run_examples
 
 LAMBDA_CALCULUS = Grammar('''
-    inline_block = function (space arg)* ":" space? expr+
-    space = ~"[^\S\n]+"
-    expr = "(" expr+ ")" / name
+    inline_block = function (space name+)* ":" space? expressions
+    expressions = expr / (expr expressions)
+    expr = ("(" expressions ")") / name
     function = ~"[A-Z][_a-zA-Z]*"
     name = ~"[_a-zA-Z]+"
+    space = ~" +"
 ''')
 
 LAMBDA_EXAMPLES = (
