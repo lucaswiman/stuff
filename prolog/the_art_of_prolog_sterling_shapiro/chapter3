@@ -1,0 +1,1 @@
+swipl -t '[chapter3], run_tests.'
