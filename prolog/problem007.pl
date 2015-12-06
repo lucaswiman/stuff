@@ -9,3 +9,5 @@ problem7(Num) :-
   nth1(Num, Primes, X),
   writeln(X)
 .
+
+solve :- problem7(10001).

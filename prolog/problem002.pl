@@ -38,3 +38,8 @@ problem2_helper(N, Acc, Max, Solution) :-
 problem2(Max, Solution) :-
   problem2_helper(2, 0, Max, Solution)
 .
+
+solve :- 
+  problem2(4000000, Solution),
+  writeln(Solution)
+.

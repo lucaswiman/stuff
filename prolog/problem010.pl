@@ -10,4 +10,4 @@ prime_sum(Max, Sum, [P|Primes]) :-
 .
 
 % primes_list(Primes), prime_sum(10, Sum, Primes).
-% primes_list(Primes), prime_sum(2000000, Sum, Primes).
+solve :- primes_list(Primes), prime_sum(2000000, Sum, Primes), writeln(Sum).

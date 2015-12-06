@@ -62,3 +62,4 @@ problem8(FileName, WindowSize, Max) :-
 
 % problem8("./problem008.data", 4, Max), writeln(Max).
 % problem8("./problem008.data", 13, Max), writeln(Max).
+solve :- problem8("./problem008.data", 13, Max), writeln(Max).

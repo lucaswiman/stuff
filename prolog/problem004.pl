@@ -25,4 +25,8 @@ palindrome_numbers(NumDigits, Palindromes, BiggestPalindrome) :-
   max_member(BiggestPalindrome, Palindromes)
 .
 
+solve :-
+  palindrome_numbers(3, Palindromes, BiggestPalindrome),
+  writeln(BiggestPalindrome)
+.
 % palindrome_numbers(3, Palindromes, BiggestPalindrome).

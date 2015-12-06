@@ -22,3 +22,5 @@ problem9(Sum, Result) :-
   writeln([A, B, C]),
   writeln(Result)
 .
+
+solve :- problem9(1000, Result), writeln(Result).

@@ -10,4 +10,8 @@ lcm_list([X|Xs], LCM) :-
   lcm(X, LCM1, LCM)
 .
 
-% numlist(1, 20, List), lcm_list(List, LCM), writeln(LCM).
+solve :-
+  numlist(1, 20, List),
+  lcm_list(List, LCM),
+  writeln(LCM)
+.

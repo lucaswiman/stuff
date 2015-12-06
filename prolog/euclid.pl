@@ -1,3 +1,4 @@
+% Implements the Euclidean algorithm, along with gcd/lcm.
 evaluated_gcd(A, B, Div) :-
   A < B -> gcd(B, A, Div)
   ; 0 is B -> Div is A
