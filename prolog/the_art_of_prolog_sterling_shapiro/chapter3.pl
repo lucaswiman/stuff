@@ -54,7 +54,7 @@ select(X, [Y|Ys], [Y|Zs]) :- X \= Y, select(X, Ys, Zs).
 
 no_doubles([], []).
 no_doubles([X|Xs], [X|Ys]) :-
-  not(member(X, Xs)),
+  \+(member(X, Xs)),
   no_doubles(Xs, Ys),
   !
 .
@@ -64,10 +64,8 @@ no_doubles([X|Xs], Ys) :-
 .
 
 :- begin_tests(no_doubles).
-test(no_doubles) :-
-  no_doubles([a,b,c,b], [a,c,b]),
-  no_doubles([a,a], [a])
-.
+  test(no_doubles) :- no_doubles([a,b,c,b], [a,c,b]).
+  test(no_doubles) :- no_doubles([a,a], [a]).
 :- end_tests(no_doubles).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
