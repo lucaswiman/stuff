@@ -156,20 +156,17 @@ index_of(Y, [X|Xs], Index) :-
   Y \= X -> (index_of(Y, Xs, Z), Index is Z+1)
 .
 
-better_card(card(Value1, _), card(Value2, _)) :-
+worse_card(card(Value1, _), card(Value2, _)) :-
   index_of(Value1, values, Index1),
   index_of(Value2, values, Index2),
-  
   Index1 =< Index2
 .
 
-:- begin_tests(better_card).
-test(better_card) :-
-  not(better_card(card(3, hearts), card(2, spades))),
-  better_card(card(2, spades), card(3, hearts)),
-  better_card(card(3, hearts), card(jack, spades))
-.
-:- end_tests(better_card).
+:- begin_tests(worse_card).
+  test(worse_card) :- \+(worse_card(card(3, hearts), card(2, spades))).
+  test(worse_card) :- worse_card(card(2, spades), card(3, hearts)).
+  test(worse_card) :- worse_card(card(3, hearts), card(jack, spades)).
+:- end_tests(worse_card).
 
 % :- begin_tests(better_hand).
 % test(better_hand) :-
