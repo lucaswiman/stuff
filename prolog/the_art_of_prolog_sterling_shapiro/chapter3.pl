@@ -109,18 +109,12 @@ merge_sort([X|Xs], Y) :-
 .
 
 :- begin_tests(merge_partition).
-test(merge_partition) :-
-  merge_partition(1, [1,2], [1], [2])
-.
-test(merge_partition) :-
-  merge_partition(1, [0,2, 2], [0], [2, 2])
-.
+  test(merge_partition) :- merge_partition(1, [1,2], [1], [2]).
+  test(merge_partition) :- merge_partition(1, [0,2, 2], [0], [2, 2]).
 :- end_tests(merge_partition).
 
 :- begin_tests(merge_sort).
-test(merge_sort) :-
-  merge_sort([2,1,3], [1,2,3])
-.
+  test(merge_sort) :- merge_sort([2,1,3], [1,2,3]).
 :- end_tests(merge_sort).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
