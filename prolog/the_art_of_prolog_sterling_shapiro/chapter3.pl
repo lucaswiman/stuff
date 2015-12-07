@@ -148,7 +148,6 @@ merge_sort([X|Xs], Y) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-not(index_of(_, [], 0)).
 index_of(Y, [X|Xs], Index) :-
   Y = X -> Index is 0;
   Y \= X -> (index_of(Y, Xs, Z), Index is Z+1)
@@ -167,7 +166,26 @@ card(Value, Suite) :-
 suite(card(_, Suite), Suite).
 card_value(card(Value, _), Value).
 
-is_card(card(Suite, Value)) :- card(Suite, Value), !.
+card_index(card(Value, _), Index) :-
+  card_values(Values), index_of(Value, Values, Index), !.
+suite_index(card(_, Suite), Index) :-
+  card_suites(Suites), index_of(Suite, Suites, Index), !.
+
+card_key(Card, [I1, I2]) :-
+  % Key that can be used for lexicographic ordering of the card
+  card_index(Card, I1), suite_index(Card, I2), !.
+
+[chapter3_utils].
+compare_cards(Delta, Card1, Card2) :-
+  card_key(Card1, Key1), card_key(Card2, Key2),
+  lexicographic(Delta, Key1, Key2)
+.
+sort_cards(Cards, Sorted) :- predsort(compare_cards, Cards, Sorted).
+
+index_value(Index, Value) :- card_values(Values), nth0(Index, Values, Value).
+
+is_card(card(Value, Suite)) :- card(Value, Suite), !.
+
 hand(Cards) :-
   length(Cards, 5),
   no_doubles(Cards, Cards),
@@ -176,12 +194,10 @@ hand(Cards) :-
 
 distinct_elem(List, Length) :- list_to_set(List, DistinctList), length(DistinctList, Length).
 
-card_index(card(Value, _), Index) :-
-  card_values(Values),
-  index_of(Value, Values, Index),
-  !
-.
-index_value(Index, Value) :- card_values(Values), nth0(Index, Values, Value).
+% grouped_cards(Cards, Grouped) :-
+%
+% .
+
 
 sorted_card_indices(Cards, SortedIndices) :-
   hand(Cards),
@@ -249,12 +265,6 @@ full_house(Cards, Three, Two) :-
 high(Cards, High) :-
   sorted_card_values(Cards, Values),
   last(Values, High)
-.
-
-better_card_value(Value1, Value2) :-
-  % True if Value1 is a better card value than Value2
-  maplist(card_index, [Value1, Value2], [I1, I2]),
-  I1 > I2
 .
 
 describe(Cards, Description):- (
