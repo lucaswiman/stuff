@@ -154,32 +154,42 @@ index_of(Y, [X|Xs], Index) :-
   Y \= X -> (index_of(Y, Xs, Z), Index is Z+1)
 .
 
-card_values(Values) :- Values = [2, 3, 4, 5, 6, 7, 8, 9, 10, jack, queen, king, ace], !.
-card_suites(Suites) :- Suites = [hearts, diamonds, clubs, spades], !.
+card_values(Values) :- Values = [2, 3, 4, 5, 6, 7, 8, 9, 10, jack, queen, king, ace].
+card_suites(Suites) :- Suites = [hearts, diamonds, clubs, spades].
+suite(card(_, Suite), Suite) :- card_suites(Suites), member(Suite, Suites).
+card_value(card(Value, _), Value) :- card_values(Values), member(Value, Values).
 
-valid_card(card(Value, Suite)) :-
-  card_values(Values), card_suites(Suites),
-  member(Value, Values), member(Suite, Suites)
+card(Value, Suite) :-
+  suite(card(Value, Suite), _),
+  card_value(card(Value, Suite), _),
+  !
 .
 
 card_index(card(Value, Suite), Index) :-
-  valid_card(card(Value, Suite)), card_values(Values),
+  card(Value, Suite),
+  card_values(Values),
   index_of(Value, Values, Index)
 .
-
-suite(card(_, Suite), Suite) :- member(Suite, [hearts, diamonds, clubs, spades]).
 
 worse_card(Card1, Card2) :-
   card_index(Card1, Index1),
   card_index(Card2, Index2),
-  Index1 =< Index2
+  Index1 < Index2
 .
+better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
 
 :- begin_tests(worse_card).
   test(worse_card) :- \+(worse_card(card(3, hearts), card(2, spades))).
   test(worse_card) :- worse_card(card(2, spades), card(3, hearts)).
   test(worse_card) :- worse_card(card(3, hearts), card(jack, spades)).
 :- end_tests(worse_card).
+
+:- begin_tests(better_card).
+  test(better_card) :- \+(better_card(card(2, spades), card(3, hearts))).
+  test(better_card) :- better_card(card(3, hearts), card(2, spades)).
+  test(better_card) :- better_card(card(jack, spades), card(3, hearts)).
+:- end_tests(better_card).
+
 
 % :- begin_tests(better_hand).
 % test(better_hand) :-
