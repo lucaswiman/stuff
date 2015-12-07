@@ -257,15 +257,26 @@ better_card_value(Value1, Value2) :-
   I1 > I2
 .
 
-describe(Cards, straight_flush(High)) :- straight(Cards, High), flush(Cards, High), !.
-describe(Cards, four_of_a_kind(Kind)) :- four_of_a_kind(Cards, Kind), !.
-describe(Cards, full_house(Three, Two)) :- full_house(Cards, Three, Two), !.
-describe(Cards, straight(High)) :- straight(Cards, High), !.
-describe(Cards, flush(High)) :- flush(Cards, High), !.
-describe(Cards, three_of_a_kind(Card)) :- three_of_a_kind(Cards, Card), !.
-describe(Cards, two_pair(High, Low)) :- two_pair(Cards, High, Low), !.
-describe(Cards, two_of_a_kind(Card)) :- two_of_a_kind(Cards, Card), !.
-describe(Cards, high(Card)) :- high(Cards, Card), !.
+describe(Cards, Description):- (
+  ((straight(Cards, High), flush(Cards, High))
+    -> Description = straight_flush(High), !);
+  (four_of_a_kind(Cards, Kind)
+    -> Description = four_of_a_kind(Kind), !);
+  (full_house(Cards, Three, Two)
+    -> Description = full_house(Three, Two), !);
+  (straight(Cards, High)
+    -> Description = straight(High), !);
+  (flush(Cards, High)
+    -> Description = flush(High), !);
+  (three_of_a_kind(Cards, Card)
+    -> Description = three_of_a_kind(Card), !);
+  (two_pair(Cards, High, Low)
+    -> Description = two_pair(High, Low), !);
+  (two_of_a_kind(Cards, Card)
+    -> Description = two_of_a_kind(Card), !);
+  (high(Cards, Card)
+    -> Description = high(Card), !)
+), !.
 
 :- begin_tests(card).
   test(card) :- card(2, hearts), !.
