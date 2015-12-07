@@ -174,29 +174,73 @@ hand(Cards) :-
   maplist(is_card, Cards)
 .
 
-% :- use_module(library(lists)).
-flush(Cards) :-
-  hand(Cards),
-  maplist(suite, Cards, Suites),
-  list_to_set(Suites, DistinctSuites),
-  length(DistinctSuites, 1)
-.
-
-straight(Cards) :-
-  hand(Cards),
-  maplist(card_index, Cards, Indices),
-  list_to_set(Indices, DistinctIndices),
-  length(DistinctIndices, 5),
-  min_list(Indices, Min),
-  max_list(Indices, Max),
-  4 is Max - Min
-.
+distinct_elem(List, Length) :- list_to_set(List, DistinctList), length(DistinctList, Length).
 
 card_index(card(Value, _), Index) :-
   card_values(Values),
   index_of(Value, Values, Index),
   !
 .
+index_value(Index, Value) :- card_values(Values), nth0(Index, Values, Value).
+
+sorted_card_values(Cards, SortedValues) :-
+  hand(Cards),
+  maplist(card_index, Cards, Indices),
+  msort(Indices, SortedIndices),
+  maplist(index_value, SortedIndices, SortedValues)
+.
+
+flush(Cards, High) :-
+  hand(Cards),
+  maplist(suite, Cards, Suites),
+  distinct_elem(Suites, 1),
+  sorted_card_values(Cards, SortedValues),
+  last(SortedValues, High)
+.
+
+four_of_a_kind(Cards, C) :-
+  sorted_card_values(Cards, SortedValues),
+  ([C, C, C, C, _] = SortedValues; [_, C, C, C, C] = SortedValues)
+.
+
+three_of_a_kind(Cards, C) :-
+  \+(four_of_a_kind(Cards, _)),
+  sorted_card_values(Cards, SortedValues),
+  ([C, C, C, _, _] = SortedValues; [_, C, C, C, _] = SortedValues; [_, _, C, C, C] = SortedValues)
+.
+
+two_of_a_kind(Cards, C) :-
+  \+(four_of_a_kind(Cards, _)),
+  \+(three_of_a_kind(Cards, C)),
+  sorted_card_values(Cards, SortedValues),
+  ([C, C, _, _, _] = SortedValues; [_, C, C, _, _] = SortedValues; [_, _, C, C, _] = SortedValues; [_, _, _, C, C] = SortedValues)
+.
+
+two_pair(Cards, High, Low) :-
+  \+(four_of_a_kind(Cards, _)),
+  \+(three_of_a_kind(Cards, _)),
+  two_of_a_kind(Cards, High),
+  two_of_a_kind(Cards, Low),
+  Low < High,
+  !
+.
+
+full_house(Cards, Three, Two) :-
+  three_of_a_kind(Cards, Three), two_of_a_kind(Cards, Two), !
+.
+
+straight(Cards, High) :-
+  sorted_card_values(Cards, SortedValues),
+  distinct_elem(SortedValues, 5),
+  min_list(SortedValues, Low),
+  max_list(SortedValues, High),
+  4 is High - Low
+.
+
+straight_flush(Cards, High) :-
+  straight(Cards, High), flush(Cards, High), !
+.
+
 
 worse_card(Card1, Card2) :-
   card_index(Card1, Index1),
@@ -228,19 +272,36 @@ better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
   test(better_card) :- better_card(card(jack, spades), card(3, hearts)).
 :- end_tests(better_card).
 
-% :- begin_tests(hand).
-%   test(hand) :-
-% :- end_tests(hand).
-
 :- begin_tests(flush).
-  test(flush) :- flush([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)]).
-  test(flush) :- \+(flush([card(2, hearts), card(3, clubs), card(4, clubs), card(5, clubs), card(6, hearts)])).
+  test(flush) :- flush([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
+  test(flush) :- \+(flush([card(2, hearts), card(3, clubs), card(4, clubs), card(5, clubs), card(6, hearts)], _)).
 :- end_tests(flush).
+
 :- begin_tests(straight).
-  test(straight) :- straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)]).
-  test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(5, hearts)])).
-  test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)])).
+  test(straight) :-
+    straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
+  test(straight) :-
+    \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(5, hearts)], _)).
+  test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)], _)).
 :- end_tests(straight).
+
+:- begin_tests(full_house).
+  test(full_house) :-
+    full_house([card(2, clubs), card(3, clubs), card(2, hearts), card(2, diamonds), card(3, diamonds)], 2, 3).
+  test(full_house) :-
+    \+(full_house([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)], _, _)).
+:- end_tests(full_house).
+
+:- begin_tests(three_of_a_kind).
+:- end_tests(three_of_a_kind).
+
+:- begin_tests(two_pair).
+  test(two_pair) :-
+    two_pair([card(2, clubs), card(3, clubs), card(2, hearts), card(4, diamonds), card(3, diamonds)], 3, 2).
+  test(two_pair) :-
+    % Full house shouldn't count as two pair.
+    \+(two_pair([card(2, clubs), card(3, clubs), card(2, hearts), card(2, diamonds), card(3, diamonds)], 3, 2)).
+:- end_tests(two_pair).
 
 % :- begin_tests(better_hand).
 % test(better_hand) :-
