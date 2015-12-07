@@ -28,20 +28,20 @@ test(substitute) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % (ii) What is the meaning of the variant of select:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-select(X, [X|Xs], Xs).
-select(X, [Y|Ys], [Y|Zs]) :- X \= Y, select(X, Ys, Zs).
+select_(X, [X|Xs], Xs).
+select_(X, [Y|Ys], [Y|Zs]) :- X \= Y, select_(X, Ys, Zs).
 
 % Answer: select(X, Y, Z) is true iff Z is the remainder of Y after the first occurrence of X.
 
-:- begin_tests(select).
+:- begin_tests(select_).
 
-  test(select) :- select(2, [2, 3], [3]), !.
+  test(select_) :- select_(2, [2, 3], [3]), !.
 
   % \+/1 is the "cannot be proven" predicate.
   % "(mnemonic: + refers to provable and the backslash (\) is normally used to indicate negation in Prolog)."
-  test(select) :- \+(select(2, [2, 3], [4])).
+  test(select_) :- \+(select_(2, [2, 3], [4])).
 
-:- end_tests(select).
+:- end_tests(select_).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -166,10 +166,33 @@ card(Value, Suite) :-
 
 suite(card(_, Suite), Suite).
 card_value(card(Value, _), Value).
+
+is_card(card(Suite, Value)) :- card(Suite, Value), !.
+hand(Cards) :-
+  length(Cards, 5),
+  no_doubles(Cards, Cards),
+  maplist(is_card, Cards)
 .
 
-card_index(card(Value, Suite), Index) :-
-  card(Value, Suite),
+% :- use_module(library(lists)).
+flush(Cards) :-
+  hand(Cards),
+  maplist(suite, Cards, Suites),
+  list_to_set(Suites, DistinctSuites),
+  length(DistinctSuites, 1)
+.
+
+straight(Cards) :-
+  hand(Cards),
+  maplist(card_index, Cards, Indices),
+  list_to_set(Indices, DistinctIndices),
+  length(DistinctIndices, 5),
+  min_list(Indices, Min),
+  max_list(Indices, Max),
+  4 is Max - Min
+.
+
+card_index(card(Value, _), Index) :-
   card_values(Values),
   index_of(Value, Values, Index),
   !
@@ -186,6 +209,11 @@ better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
   test(card) :- card(2, hearts), !.
   test(card) :- \+(card(1, hearts)).
   test(card) :- \+(card(2, something)).
+  test(card) :-
+    findall(card(X, Y), card(X, Y), Deck),
+    length(Deck, 52)  % A deck should have 52 cards
+  .
+  test(card) :- \+(is_card(card(1, something))).
 :- end_tests(card).
 
 :- begin_tests(worse_card).
@@ -200,6 +228,19 @@ better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
   test(better_card) :- better_card(card(jack, spades), card(3, hearts)).
 :- end_tests(better_card).
 
+% :- begin_tests(hand).
+%   test(hand) :-
+% :- end_tests(hand).
+
+:- begin_tests(flush).
+  test(flush) :- flush([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)]).
+  test(flush) :- \+(flush([card(2, hearts), card(3, clubs), card(4, clubs), card(5, clubs), card(6, hearts)])).
+:- end_tests(flush).
+:- begin_tests(straight).
+  test(straight) :- straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)]).
+  test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(5, hearts)])).
+  test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)])).
+:- end_tests(straight).
 
 % :- begin_tests(better_hand).
 % test(better_hand) :-
