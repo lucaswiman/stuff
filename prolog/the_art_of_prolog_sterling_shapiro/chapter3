@@ -1,1 +1,1 @@
-swipl -g 'true' -t '[chapter3], run_tests.'
+swipl -g 'true' -t '[utils], [chapter3], run_tests.'
