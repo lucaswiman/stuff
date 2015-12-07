@@ -246,6 +246,27 @@ full_house(Cards, Three, Two) :-
   three_of_a_kind(Cards, Three), two_of_a_kind(Cards, Two), !
 .
 
+high(Cards, High) :-
+  sorted_card_values(Cards, Values),
+  last(Values, High)
+.
+
+better_card_value(Value1, Value2) :-
+  % True if Value1 is a better card value than Value2
+  maplist(card_index, [Value1, Value2], [I1, I2]),
+  I1 > I2
+.
+
+describe(Cards, straight_flush(High)) :- straight(Cards, High), flush(Cards, High), !.
+describe(Cards, four_of_a_kind(Kind)) :- four_of_a_kind(Cards, Kind), !.
+describe(Cards, full_house(Three, Two)) :- full_house(Cards, Three, Two), !.
+describe(Cards, straight(High)) :- straight(Cards, High), !.
+describe(Cards, flush(High)) :- flush(Cards, High), !.
+describe(Cards, three_of_a_kind(Card)) :- three_of_a_kind(Cards, Card), !.
+describe(Cards, two_pair(High, Low)) :- two_pair(Cards, High, Low), !.
+describe(Cards, two_of_a_kind(Card)) :- two_of_a_kind(Cards, Card), !.
+describe(Cards, high(Card)) :- high(Cards, Card), !.
+
 :- begin_tests(card).
   test(card) :- card(2, hearts), !.
   test(card) :- \+(card(1, hearts)).
@@ -291,11 +312,14 @@ full_house(Cards, Three, Two) :-
     \+(two_pair([card(2, clubs), card(3, clubs), card(2, hearts), card(2, diamonds), card(3, diamonds)], 3, 2)).
 :- end_tests(two_pair).
 
-% :- begin_tests(better_hand).
-% test(better_hand) :-
-%   better_hand(
-%     [card(2, hearts), card(3, hearts), card(4, hearts), card(5, hearts), card(6, hearts)]
-%     [card(3, diamonds), card(4, diamonds), card(5, diamonds), card(6, diamonds), card(7, diamonds)]
-%   )
-% .
-% :- end_tests(better_hand).
+:- begin_tests(describe).
+  test(describe) :-
+    describe([card(king, clubs), card(king, hearts), card(king, spades), card(king, diamonds), card(2,clubs)],
+             four_of_a_kind(king)).
+  test(describe) :-
+    \+(describe([card(king, clubs), card(king, hearts), card(king, spades), card(2, diamonds), card(2,clubs)],
+                three_of_a_kind(king))).
+  test(describe) :-
+    \+(describe([card(king, clubs), card(king, hearts), card(king, spades), card(2, diamonds), card(2,clubs)],
+                full_house(king, 2))).
+:- end_tests(describe).
