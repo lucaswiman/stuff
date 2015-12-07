@@ -156,19 +156,23 @@ index_of(Y, [X|Xs], Index) :-
 
 card_values(Values) :- Values = [2, 3, 4, 5, 6, 7, 8, 9, 10, jack, queen, king, ace].
 card_suites(Suites) :- Suites = [hearts, diamonds, clubs, spades].
-suite(card(_, Suite), Suite) :- card_suites(Suites), member(Suite, Suites).
-card_value(card(Value, _), Value) :- card_values(Values), member(Value, Values).
 
 card(Value, Suite) :-
-  suite(card(Value, Suite), _),
-  card_value(card(Value, Suite), _),
-  !
+  card_values(Values),
+  card_suites(Suites),
+  member(Value, Values),
+  member(Suite, Suites)
+.
+
+suite(card(_, Suite), Suite).
+card_value(card(Value, _), Value).
 .
 
 card_index(card(Value, Suite), Index) :-
   card(Value, Suite),
   card_values(Values),
-  index_of(Value, Values, Index)
+  index_of(Value, Values, Index),
+  !
 .
 
 worse_card(Card1, Card2) :-
@@ -177,6 +181,12 @@ worse_card(Card1, Card2) :-
   Index1 < Index2
 .
 better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
+
+:- begin_tests(card).
+  test(card) :- card(2, hearts), !.
+  test(card) :- \+(card(1, hearts)).
+  test(card) :- \+(card(2, something)).
+:- end_tests(card).
 
 :- begin_tests(worse_card).
   test(worse_card) :- \+(worse_card(card(3, hearts), card(2, spades))).
