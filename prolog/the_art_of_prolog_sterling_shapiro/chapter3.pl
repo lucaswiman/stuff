@@ -241,14 +241,6 @@ straight_flush(Cards, High) :-
   straight(Cards, High), flush(Cards, High), !
 .
 
-
-worse_card(Card1, Card2) :-
-  card_index(Card1, Index1),
-  card_index(Card2, Index2),
-  Index1 < Index2
-.
-better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
-
 :- begin_tests(card).
   test(card) :- card(2, hearts), !.
   test(card) :- \+(card(1, hearts)).
@@ -259,18 +251,6 @@ better_card(Card1, Card2) :- \+(worse_card(Card1, Card2)).
   .
   test(card) :- \+(is_card(card(1, something))).
 :- end_tests(card).
-
-:- begin_tests(worse_card).
-  test(worse_card) :- \+(worse_card(card(3, hearts), card(2, spades))).
-  test(worse_card) :- worse_card(card(2, spades), card(3, hearts)).
-  test(worse_card) :- worse_card(card(3, hearts), card(jack, spades)).
-:- end_tests(worse_card).
-
-:- begin_tests(better_card).
-  test(better_card) :- \+(better_card(card(2, spades), card(3, hearts))).
-  test(better_card) :- better_card(card(3, hearts), card(2, spades)).
-  test(better_card) :- better_card(card(jack, spades), card(3, hearts)).
-:- end_tests(better_card).
 
 :- begin_tests(flush).
   test(flush) :- flush([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
