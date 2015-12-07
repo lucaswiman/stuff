@@ -183,10 +183,14 @@ card_index(card(Value, _), Index) :-
 .
 index_value(Index, Value) :- card_values(Values), nth0(Index, Values, Value).
 
-sorted_card_values(Cards, SortedValues) :-
+sorted_card_indices(Cards, SortedIndices) :-
   hand(Cards),
   maplist(card_index, Cards, Indices),
-  msort(Indices, SortedIndices),
+  msort(Indices, SortedIndices)
+.
+
+sorted_card_values(Cards, SortedValues) :-
+  sorted_card_indices(Cards, SortedIndices),
   maplist(index_value, SortedIndices, SortedValues)
 .
 
