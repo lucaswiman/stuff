@@ -194,6 +194,19 @@ sorted_card_values(Cards, SortedValues) :-
   maplist(index_value, SortedIndices, SortedValues)
 .
 
+straight(Cards, High) :-
+  sorted_card_indices(Cards, SortedIndices),
+  distinct_elem(SortedIndices, 5),
+  min_list(SortedIndices, Min),
+  max_list(SortedIndices, Max),
+  4 is Max - Min,
+  index_value(Max, High)
+.
+
+straight_flush(Cards, High) :-
+  straight(Cards, High), flush(Cards, High), !
+.
+
 flush(Cards, High) :-
   hand(Cards),
   maplist(suite, Cards, Suites),
@@ -233,18 +246,6 @@ full_house(Cards, Three, Two) :-
   three_of_a_kind(Cards, Three), two_of_a_kind(Cards, Two), !
 .
 
-straight(Cards, High) :-
-  sorted_card_values(Cards, SortedValues),
-  distinct_elem(SortedValues, 5),
-  min_list(SortedValues, Low),
-  max_list(SortedValues, High),
-  4 is High - Low
-.
-
-straight_flush(Cards, High) :-
-  straight(Cards, High), flush(Cards, High), !
-.
-
 :- begin_tests(card).
   test(card) :- card(2, hearts), !.
   test(card) :- \+(card(1, hearts)).
@@ -264,9 +265,9 @@ straight_flush(Cards, High) :-
 
 :- begin_tests(straight).
   test(straight) :-
-    straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
+    straight([card(king, hearts), card(9, clubs), card(10, clubs), card(jack, clubs), card(queen, hearts)], king).
   test(straight) :-
-    straight([card(9, king), card(9, clubs), card(10, clubs), card(jack, clubs), card(5, queen)], king).
+    straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
   test(straight) :-
     \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(5, hearts)], _)).
   test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)], _)).
