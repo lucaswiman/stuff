@@ -254,12 +254,15 @@ straight_flush(Cards, High) :-
 
 :- begin_tests(flush).
   test(flush) :- flush([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
+  test(flush) :- flush([card(ace, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], ace).
   test(flush) :- \+(flush([card(2, hearts), card(3, clubs), card(4, clubs), card(5, clubs), card(6, hearts)], _)).
 :- end_tests(flush).
 
 :- begin_tests(straight).
   test(straight) :-
     straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(6, clubs)], 6).
+  test(straight) :-
+    straight([card(9, king), card(9, clubs), card(10, clubs), card(jack, clubs), card(5, queen)], king).
   test(straight) :-
     \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(5, hearts)], _)).
   test(straight) :- \+(straight([card(2, clubs), card(3, clubs), card(4, clubs), card(5, clubs), card(7, hearts)], _)).
