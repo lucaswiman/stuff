@@ -27,37 +27,37 @@ from . import run_examples
 
 
 REGEX = Grammar(r'''
-    RE = union / simple_RE
-    union = RE "|" simple_RE
-    simple_RE = concatenation / basic_RE
-    concatenation = simple_RE basic_RE
-    basic_RE = star / plus / elementary_RE
-    star = elementary_RE "*"
-    plus = elementary_RE "+"
-    elementary_RE = group / any / eos / char / set
-    group = "(" RE ")"
+    re = union / concatenation
+    union = (concatenation "|")+ concatenation
+    concatenation = (star / plus / literal)+
+    star = literal "*"
+    plus = literal "+"
+    literal = group / any / char / positive_set / negative_set
+    group = "(" re ")"
     any = "."
-    eos = "$"
-    metachar = ~"[.$^\\*+\[\]]"
-    char = ~"[^.$^\\*+\[\]]" / ("\\" metachar)
-    set = positive_set / negative_set
+    escaped_metachar = "\\" ~"[.$^\\*+\[\]()]"
+    char = escaped_metachar / ~"[^.$^\\*+\[\]()]"
     positive_set = "[" set_items "]"
     negative_set = "[^" set_items "]"
-    set_items = (set_item set_items) / set_item
-    set_item = range / char
-    range = char "-" char
+    set_char = ~"[^\\]]|\\]"
+    set_items = "-"? (range / ~"[^]")+
+    range = char "-" set_char
 ''')
 
 
 REGEX_EXAMPLES = (
-    'a',
-    '[a-z0-9]'
-    '(a|bc|cd)*',
+    r'a',
+    r'[a-z0-9]'
+    r'(a|bc|cd)*',
+    r'[-a]',
+    r'\)'
 )
 
 REGEX_NON_EXAMPLES = (
-    '[)',
-    ')()',
+    r'[)',
+    r')()',
+    r'[a--c]',
+    # r'[a&--]',
 )
 
 if __name__ == '__main__':
