@@ -14,7 +14,7 @@ def sieve():
         if not divisor_iterators:
             # n hasn't been sieved by anything, so is prime.
             yield n
-            divisor_iterators.append(itertools.count(
+            divisor_iterators.append(it.count(
                 # Start counting at p**2, which is the next multiple not already sieved
                 # by some other sieve.
                 n ** 2,
