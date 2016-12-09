@@ -5,6 +5,7 @@ pub struct Fibonacci {
   cur: u64,
 }
 
+
 impl Iterator for Fibonacci {
   type Item = u64;
   fn next(&mut self) -> Option<u64> {

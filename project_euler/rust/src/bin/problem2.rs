@@ -4,11 +4,11 @@
 //
 // By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the even-valued terms.
 
-mod fibonacci;
+extern crate project_euler;
 
 fn main() {
   let answer =
-    fibonacci::fibonacci()
+    project_euler::fibonacci::fibonacci()
     .take_while(|f| f < &4000000)
     .filter(|f| f % 2 == 0)
     .fold(0u64, |acc, x| acc + x);
