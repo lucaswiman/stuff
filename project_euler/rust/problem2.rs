@@ -4,17 +4,13 @@
 //
 // By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the even-valued terms.
 
+mod fibonacci;
+
 fn main() {
-  let mut prev = 0u64;
-  let mut cur = 1u64;
-  let mut acc = 0u64;
-  while cur <= 4000000 {
-    let tmp = cur;
-    cur = tmp + prev;
-    prev = tmp;
-    if cur % 2 == 0 {
-      acc += cur;
-    }
-  }
-  println!("{}", acc);
+  let answer =
+    fibonacci::fibonacci()
+    .take_while(|f| f < &4000000)
+    .filter(|f| f % 2 == 0)
+    .fold(0u64, |acc, x| acc + x);
+  println!("{}", answer);
 }
