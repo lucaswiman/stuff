@@ -60,7 +60,11 @@ fn main() {
         }
         println!("x={}", x);  // x=5
         if true {
-          x = 7;  // Has the _side effect_ of updating the binding in the whole mutable binding scope.
+          x = 7;
+          // Has the _side effect_ of updating the binding in the whole mutable binding scope.
+          // Simpler to understand if read as `mut x = 7` to indicate that mutation is an action
+          // being taken, while `let` establishes a new binding context.
+
           println!("x={}", x);  // x=7
         }
         // binding is still updated to 7 due to the side effect above.
