@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 pub struct SievedPrimes {
   pub primes: Vec<u64>,
   pub biggest: u64,
@@ -54,6 +56,30 @@ impl SievedPrimes {
       (0..hasdivisor.len())
       .filter(|x| !hasdivisor[*x])
       .map(|x| left_endpoint + 2 * (x as u64)));
+  }
+  pub fn nth_prime(&mut self, n:usize) -> u64 {
+    while self.primes.len() <= n {
+      self.expand();
+    }
+    return self.primes[n];
+  }
+
+  pub fn factorize(&mut self, n:u64) -> BTreeMap<u64, u32> {
+    let mut prime_to_degree = BTreeMap::new();
+    let mut remainder = n;
+    for i in 0.. {
+      let prime = self.nth_prime(i);
+      while remainder % prime == 0 {
+        prime_to_degree.entry(prime).or_insert(0);
+        let degree = prime_to_degree[&prime];
+        prime_to_degree.insert(prime, degree + 1);
+        remainder /= prime;
+      }
+      if remainder == 1 {
+        break;
+      }
+    }
+    return prime_to_degree;
   }
 }
 
