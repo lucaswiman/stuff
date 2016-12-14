@@ -1,6 +1,5 @@
 <html>
   <head>
-    <script src="./pdf.js/build/pdf.js"></script>
   <script src="./pdf.js/build/pdf.js"></script>
 
   <script id="script">
@@ -9,6 +8,7 @@
     // header on that server.
     //
     var url = './20-pages.pdf';
+    // var url = './clause_and_effect.pdf';
 
     //
     // Disable workers to avoid yet another cross-origin issue (workers need
@@ -25,56 +25,89 @@
     //
     // Asynchronous download PDF
     //
-    PDFJS.getDocument(url).then(function getPdfHelloWorld(pdf) {
-      //
-      // Fetch the first page
-      //
-      pdf.getPage(1).then(function getPageHelloWorld(page) {
-        var scale = 1.5;
-        var viewport = page.getViewport(scale);
-
-        //
-        // Prepare canvas using PDF page dimensions
-        //
-        var canvas = document.getElementById('left');
-        var context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        //
-        // Render PDF page into canvas context
-        //
-        var renderContext = {
-          canvasContext: context,
-          viewport: viewport
+    PDFJS.getDocument(url).then(function(pdf) {
+      var renderPage = function(pageNumber) {
+        if (typeof(pageNumber) === 'undefined') {
+          
         };
-        page.render(renderContext);
-      });
+        pdf.getPage(pageNumber).then(
+          function(page) {
+            var canvas = document.getElementById('left');            
+            var scale = canvas.scrollHeight / page.getViewport(1.0).width;
+            var viewport = page.getViewport(scale);
+
+            //
+            // Prepare canvas using PDF page dimensions
+            //
+            var context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            //
+            // Render PDF page into canvas context
+            //
+            var renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            page.render(renderContext);
+            canvas.dataset.currentPage = pageNumber;
+          }
+        );
+      };
+      renderPage(1);
+      document.getElementById('previous-page').onclick = function(event) {
+        var canvas = document.getElementById('left');
+        var currentPage = parseInt(canvas.dataset.currentPage);
+        if (currentPage > 1) {
+          renderPage(currentPage - 1);
+        }
+      };
+      document.getElementById('next-page').onclick = function(event) {
+        var canvas = document.getElementById('left');
+        var currentPage = parseInt(canvas.dataset.currentPage);
+        if (currentPage < pdf.numPages) {
+          renderPage(currentPage + 1);
+        }
+      };
     });
   </script>
 
     <style>
       #content, html, body {
-          height: 98%;
+          height: 100%;
+      }
+      body {
+        display: flex;
       }
       #left {
-          float: left;
-          width: 50%;
-          background: red;
-          height: 100%;
-          overflow: scroll;
+        display: flex;
+        background: red;
+        width: 77.2vh;
+        height: 100vh;  /* http://stackoverflow.com/questions/1495407/maintain-the-aspect-ratio-of-a-div-with-css */
+        overflow: scroll;
+        border: 1px black solid;
       }
       #right {
-          float: left;
-          width: 50%;
-          background: blue;
-          height: 100%;
-          overflow: scroll;
+        display: flex;
+        background: blue;
+        height: 100%;
+        overflow: scroll;
+        flex-grow: 1;
+      }
+      .page-button {
+        width: 70px;
+        height: 70px;
+        margin-right: 10px;
+        font-size: 65px;
       }
     </style>
   </head>
   <body>
     <canvas id="left"></canvas>
-    <div id="right"></div>
+    <div id="right">
+      <a id="previous-page" class="page-button">◅</a>
+      <a id="next-page" class="page-button">▻</a>
+    </div>
   </body>
 </html>
