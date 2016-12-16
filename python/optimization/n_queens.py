@@ -1,10 +1,13 @@
+# http://stackoverflow.com/questions/41131644/n-queens-symmetry-breaking-google-or-tools
 from ortools.constraint_solver import pywrapcp
 
 N = 12
 solver = pywrapcp.Solver("n-queens")
 # Creates the variables.
 # The array index is the column, and the value is the row.
-queens = [solver.IntVar(0, N - 1, "x%i" % i) for i in range(N)]
+queens = (
+    [solver.IntVar(0, (N // 2) + 1)] +  # require the first row to be on the "left half" of the board
+    [solver.IntVar(0, N - 1, "x%i" % i) for i in range(1, N)])
 # Creates the constraints.
 # All rows must be different.
 solver.Add(solver.AllDifferent(queens))
