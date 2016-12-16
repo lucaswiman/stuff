@@ -1,0 +1,39 @@
+<html>
+  <!-- https://css-tricks.com/drag-and-drop-file-uploading/ -->
+  <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <style>
+      .file-input-box {
+        width: 200px;
+        height: 200px;
+        background-color: lightgrey;
+        font-weight: bold;
+      }
+      .file-input-box.dragged {
+        background: grey;
+      }
+    </style>
+    <script>
+      $(function() {
+        $("html").on("dragover drop", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+        // Chrome only, but avoids ajax.
+        // http://stackoverflow.com/questions/12121589/drag-and-drop-file-uploading-without-ajax-synchronously-in-the-foreground
+        $(".file-input-box").on("dragover drop", function(e) {
+          e.preventDefault();
+        }).on("drop", function(e) {
+          $("input[type='file']").prop("files", e.originalEvent.dataTransfer.files)  // put files into element
+        });
+      });
+    </script>
+    <form method="post" action="" enctype="multipart/form-data">
+      <div class="file-input-box">
+        Choose a file or drag it here.
+        <input type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+      </div>
+      <button class="box__button" type="submit">Upload</button>
+    </form>
+  </body>
+</html>
