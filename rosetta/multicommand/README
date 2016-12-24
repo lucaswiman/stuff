@@ -1,0 +1,6 @@
+Implement a command which:
+- Is executable in bash.
+- Takes one argument, a file where each line is a command to execute.
+- Executes them in parallel.
+- Has nonzero exit status iff one of them didn't succeed.
+- Outputs the stdout and stderr of each comamnd that failed, swallowing the remainder.

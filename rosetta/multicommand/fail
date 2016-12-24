@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+sleep 5
+echo 'trying...'
+
+echoerr() { echo "$@" 1>&2; }
+
+echoerr 'failure! Oh noes'
+exit 1
