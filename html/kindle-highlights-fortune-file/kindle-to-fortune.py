@@ -128,17 +128,24 @@ def parse_element_into_books(html_elements):
 def justify(text, number_of_chars=90):
     words = text.split()
     lines = []
-    cur_line = ''
+
+    # Sum of word lengths plus number of spaces between them.
+    line_length = lambda words: sum(map(len, words)) + len(words)
+
+    cur_line = []
     for word in words:
-        pad = ' ' if cur_line else ''
-        if len(pad) + len(cur_line) + len(word) > number_of_chars:
+        if line_length(cur_line + [word]) > number_of_chars:
             lines.append(cur_line)
-            cur_line = word
+            cur_line = [word]
         else:
-            cur_line += pad + word
+            cur_line.append(word)
     if cur_line:
         lines.append(cur_line)
-    return '\n'.join(lines)
+    formatted_lines = [
+        ' '.join([TERM.bold(' '.join(lines[0][:5])), *lines[0][5:]]),
+        *(' '.join(l) for l in lines[1:])
+    ]
+    return '\n'.join(formatted_lines)
             
 
 def construct_highlight_string(author, title, text, location):
