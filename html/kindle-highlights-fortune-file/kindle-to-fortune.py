@@ -125,7 +125,7 @@ def parse_element_into_books(html_elements):
     return [Book(group) for group in groups]
 
 
-def justify(text, number_of_chars=90):
+def justify(text, number_of_chars=70, bold_words=0):
     words = text.split()
     lines = []
 
@@ -141,24 +141,39 @@ def justify(text, number_of_chars=90):
             cur_line.append(word)
     if cur_line:
         lines.append(cur_line)
-    formatted_lines = [
-        ' '.join([TERM.bold(' '.join(lines[0][:5])), *lines[0][5:]]),
-        *(' '.join(l) for l in lines[1:])
-    ]
+    if bold_words:
+        formatted_lines = [
+            ' '.join([TERM.bold(' '.join(lines[0][:bold_words])), *lines[0][bold_words:]]),
+            *(' '.join(l) for l in lines[1:])
+        ]
+    else:
+        formatted_lines = [' '.join(line) for line in lines]
     return '\n'.join(formatted_lines)
+
+
+def indent(text, indent='    '):
+    return '\n'.join(indent + line for line in text.split('\n'))
             
 
 def construct_highlight_string(author, title, text, location):
         
-    title, *xs = title.split(':')
-    title = ':'.join([TERM.bold(title), *xs])
-    ret = '{text}\n    {title}\n    By {author} (Location: {location})'.format(
+    title, *subs = title.split(':')
+    subtitle = ':'.join(subs).strip()
+    title = TERM.bold(title)
+    if subtitle:
+        title += ':'
+        subtitle = indent(justify(subtitle, number_of_chars=70-4))
+        title = '\n'.join([title, subtitle])
+    author_location = 'By {author} (Location: {location})'.format(
         author=TERM.bold(author),
-        text=justify(text.strip()),
         location=location,
-        title=title,
     )
-    return ret
+    ret = '{text}\n\n{title}\n{author_location}'.format(
+        text=justify(text.strip(), bold_words=5),
+        title=indent(title),
+        author_location=indent(author_location)
+    )
+    return indent(ret)
 
 def write_fortune_file(books):
     """
