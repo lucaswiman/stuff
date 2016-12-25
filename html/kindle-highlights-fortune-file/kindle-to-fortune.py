@@ -125,7 +125,7 @@ def parse_element_into_books(html_elements):
     return [Book(group) for group in groups]
 
 
-def justify(text, number_of_chars=70, bold_words=0):
+def justify(text, number_of_chars=70, bold_words=0, bright=False):
     words = text.split()
     lines = []
 
@@ -141,13 +141,18 @@ def justify(text, number_of_chars=70, bold_words=0):
             cur_line.append(word)
     if cur_line:
         lines.append(cur_line)
-    if bold_words:
+    bold = TERM.bold_bright_red if bright else TERM.bold_red
+    color = TERM.bright_red if bright else TERM.red
+    if bold_words > 0:
         formatted_lines = [
-            ' '.join([TERM.bold(' '.join(lines[0][:bold_words])), *lines[0][bold_words:]]),
-            *(' '.join(l) for l in lines[1:])
+            ' '.join([bold(' '.join(lines[0][:bold_words])), color(' '.join(lines[0][bold_words:]))]),
+            *(color(' '.join(l)) for l in lines[1:])
         ]
-    else:
+    elif bold_words == -1:
         formatted_lines = [' '.join(line) for line in lines]
+        return bold('\n'.join(formatted_lines))
+    else:
+        formatted_lines = [color(' '.join(line)) for line in lines]
     return '\n'.join(formatted_lines)
 
 
@@ -158,22 +163,25 @@ def indent(text, indent='    '):
 def construct_highlight_string(author, title, text, location):
         
     title, *subs = title.split(':')
+    title = TERM.bold_red(title)
     subtitle = ':'.join(subs).strip()
-    title = TERM.bold(title)
     if subtitle:
-        title += ':'
-        subtitle = indent(justify(subtitle, number_of_chars=70-4))
+        title += TERM.red(':')
+        title = TERM.red(title)
+        subtitle = TERM.red(indent(justify(subtitle, number_of_chars=70-4)))
         title = '\n'.join([title, subtitle])
-    author_location = 'By {author} (Location: {location})'.format(
-        author=TERM.bold(author),
-        location=location,
+    else:
+        title = TERM.bold_red(title)
+    author_location = 'By {author} {loc}'.format(
+        author=TERM.bold_red(author),
+        loc=TERM.red('(Location: {location})'.format(location=location)),
     )
     ret = '{text}\n\n{title}\n{author_location}'.format(
-        text=justify(text.strip(), bold_words=5),
+        text=justify(text.strip(), bold_words=-1, bright=True),
         title=indent(title),
-        author_location=indent(author_location)
+        author_location=TERM.red(indent(author_location)),
     )
-    return indent(ret)
+    return TERM.red(indent(ret))
 
 def write_fortune_file(books):
     """
