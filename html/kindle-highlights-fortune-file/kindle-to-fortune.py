@@ -96,6 +96,8 @@ def parse_highlights_html(html):
 from refo import finditer, Predicate, Literal, Any, Group, Star, Plus
 from collections import *
 import re
+from blessings import Terminal
+TERM = Terminal()
 
 
 class Highlight(namedtuple('Highlight', ['text', 'location'])):
@@ -141,11 +143,13 @@ def justify(text, number_of_chars=90):
 
 def construct_highlight_string(author, title, text, location):
         
+    title, *xs = title.split(':')
+    title = ':'.join([TERM.bold(title), *xs])
     ret = '{text}\n    {title}\n    By {author} (Location: {location})'.format(
-        author=author,
+        author=TERM.bold(author),
         text=justify(text.strip()),
         location=location,
-        title=title
+        title=title,
     )
     return ret
 

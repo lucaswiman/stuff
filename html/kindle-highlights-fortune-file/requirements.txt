@@ -2,3 +2,4 @@ lxml
 pycrypto
 cssselect
 REfO
+blessings
