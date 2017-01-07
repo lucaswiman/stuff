@@ -4,12 +4,7 @@ import os
 import pygraphviz
 
 def doit():
-    directed = True
-    strict = False
     A = pygraphviz.AGraph(name='', strict=False, directed=True)
-    A.graph_attr.update({})
-    A.node_attr.update({})
-    A.edge_attr.update({})
 
     nodes = [
         ('[0123]', {'color': 'black', 'label': '[0123]', 'accepting': False}),
