@@ -7,15 +7,15 @@ def doit():
     A = pygraphviz.AGraph(name='', strict=False, directed=True)
 
     nodes = [
-        ('[0123]', {'label': '[0123]', 'accepting': False}),
-        ('ε', {'label': 'ε', 'accepting': True}),
+        ('[0123]', {}),
+        ('ε', {}),
     ]
     for n, nodedata in nodes:
         A.add_node(n, **nodedata)
 
     edges = [
-        ('[0123]', 'ε', 0, {'label': '0', 'transition': '0'}),
-        ('[0123]', 'ε', 1, {'label': '1', 'transition': '1'}),
+        ('[0123]', 'ε', 0, {}),
+        ('[0123]', 'ε', 1, {}),
     ]
     for u,v,key,edgedata in edges:
         str_edgedata=dict((k,str(v)) for k,v in edgedata.items())
