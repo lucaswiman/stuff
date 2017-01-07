@@ -7,15 +7,15 @@ def doit():
     A = pygraphviz.AGraph(name='', strict=False, directed=True)
 
     nodes = [
-        ('[0123]', {}),
-        ('ε', {}),
+        ('a', {}),
+        ('b', {}),
     ]
     for n, nodedata in nodes:
         A.add_node(n, **nodedata)
 
     edges = [
-        ('[0123]', 'ε', 0, {}),
-        ('[0123]', 'ε', 1, {}),
+        ('a', 'b', 0, {}),
+        ('a', 'b', 1, {}),
     ]
     for u,v,key,edgedata in edges:
         str_edgedata=dict((k,str(v)) for k,v in edgedata.items())
@@ -24,8 +24,8 @@ def doit():
     A.write('/tmp/foo.dot')
     os.system('dot -Tpng /tmp/foo.dot -o /tmp/foo.png')
     os.system('open /tmp/foo.png')
-    edges_to_epsilon = [edge for edge in edges if edge[0] == '[0123]' and edge[1] == 'ε']
-    A_edges_to_epsilon = [edge for edge in A.edges() if edge[0] == '[0123]' and edge[1] == 'ε']
+    edges_to_epsilon = [edge for edge in edges if edge[0] == 'a' and edge[1] == 'b']
+    A_edges_to_epsilon = [edge for edge in A.edges() if edge[0] == 'a' and edge[1] == 'b']
     return A, (len(edges_to_epsilon) == len(A_edges_to_epsilon)), edges_to_epsilon, A_edges_to_epsilon
 
 
