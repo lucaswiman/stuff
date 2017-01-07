@@ -7,8 +7,8 @@ def doit():
     A = pygraphviz.AGraph(name='', strict=False, directed=True)
 
     nodes = [
-        ('[0123]', {'color': 'black', 'label': '[0123]', 'accepting': False}),
-        ('ε', {'color': 'green', 'label': 'ε', 'accepting': True}),
+        ('[0123]', {'label': '[0123]', 'accepting': False}),
+        ('ε', {'label': 'ε', 'accepting': True}),
     ]
     for n, nodedata in nodes:
         A.add_node(n, **nodedata)
