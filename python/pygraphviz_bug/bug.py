@@ -6,12 +6,8 @@ import pygraphviz
 def doit():
     A = pygraphviz.AGraph(name='', strict=False, directed=True)
 
-    nodes = [
-        ('a', {}),
-        ('b', {}),
-    ]
-    for n, nodedata in nodes:
-        A.add_node(n, **nodedata)
+    A.add_node('a')
+    A.add_node('b')
 
     edges = [
         ('a', 'b', 0, {}),
