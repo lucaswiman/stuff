@@ -64,11 +64,11 @@
 [push]
   default = current
 [core]
-	excludesfile = /Users/lucaswiman/.gitignore_global
+  excludesfile = /Users/lucaswiman/.gitignore_global
 [grep]
-	lineNumber = true
+  lineNumber = true
 [log]
-	date = iso
+  date = iso
 
 [merge]
   conflictstyle = diff3
