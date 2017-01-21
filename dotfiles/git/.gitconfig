@@ -1,0 +1,69 @@
+[user]
+	name = Lucas Wiman
+	email = lucaswiman@counsyl.com
+
+[alias]
+  remove-merged = !git branch --merged | grep -v \"\\*\" | xargs --no-run-if-empty -n 1 git branch -d
+  staged = diff --cached
+  unstage = reset HEAD
+  undo-commit = reset --soft HEAD^
+
+  cehckout = checkout
+  chekcout = checkout
+  chckout = checkout
+  checkoyt = checkout
+  chcout = checkout
+  checkoout = checkout
+  
+  comit = commit
+  sommit = commit
+  sho = show
+  grpe = grep
+  lo = "!echo \"GIT LO WHEN THA WHISTLE BLOW\"; read -n1 _; git log $*"
+  unatge = reset HEAD
+  remoste = remote
+  pul = pull
+
+[diff]
+  renames = copy
+[color]
+  ui = auto
+  diff = auto
+  status = auto
+  branch = auto
+  interactive = auto
+  ui = true
+  pager = true
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = cyan bold
+
+[diff "pdf"]
+    textconv = hexdump -v -C
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[credential]
+    helper = osxkeychain
+[push]
+    default = current
+[core]
+	excludesfile = /Users/lucaswiman/.gitignore_global
+[grep]
+	lineNumber = true
+[log]
+	date = iso
+
+[merge]
+    conflictstyle = diff3
