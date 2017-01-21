@@ -1,0 +1,7 @@
+*.pyc
+__pycache__
+.coverage
+.egg-info
+.idea
+.venv
+pr-drafts
