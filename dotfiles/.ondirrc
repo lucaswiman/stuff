@@ -10,15 +10,16 @@ leave ~/opensource:~/personal
   unset GIT_COMMITTER_NAME
   unset GIT_COMMITTER_EMAIL
 
-
 enter ~/counsyl
   export GIT_AUTHOR_NAME='Lucas Wiman'
   export GIT_AUTHOR_EMAIL='lucaswiman@counsyl.com'
   export GIT_COMMITTER_NAME='Lucas Wiman'
   export GIT_AUTHOR_EMAIL='lucaswiman@counsyl.com'
+  export PIP_INDEX_URL='https://pypi.counsyl.com/counsyl/prod/'
 
 leave ~/counsyl
   unset GIT_AUTHOR_NAME
   unset GIT_AUTHOR_EMAIL
   unset GIT_COMMITTER_NAME
   unset GIT_COMMITTER_EMAIL
+  unset PIP_INDEX_URL
