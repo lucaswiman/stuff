@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 .PHONY: default
-default: ~/.gitconfig ~/.ondirrc
+default: ~/.gitconfig ~/.ondirrc ~/.gitignore_global
 
 ~/.gitconfig: git/.gitconfig
 	rm -f ~/.gitconfig
