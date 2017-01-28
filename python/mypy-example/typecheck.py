@@ -34,4 +34,4 @@ def abs(x) -> int:
         return x
 
 
-abs(0) > 5
+abs(0) > 5  # doesn't fail with --strict-optional
