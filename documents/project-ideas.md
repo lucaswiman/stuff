@@ -9,3 +9,8 @@ References:
 ### Python 3 import checker
 - flake8-tidy-imports
 - Comprehensive list of removed/moved imports https://github.com/lucaswiman/legacy-python-upgrade-guide/blob/master/imports/build_banned_imports.py
+
+
+### Railroad diagrams for `parsimonious`
+
+https://github.com/erikrose/parsimonious/issues/104
