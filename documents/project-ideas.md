@@ -14,3 +14,8 @@ References:
 ### Railroad diagrams for `parsimonious`
 
 https://github.com/erikrose/parsimonious/issues/104
+
+
+### Bug with CheckBoxSelectMultiple
+
+https://github.com/django-crispy-forms/django-crispy-forms/issues/690
