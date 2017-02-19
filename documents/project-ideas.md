@@ -19,3 +19,8 @@ https://github.com/erikrose/parsimonious/issues/104
 ### Bug with CheckBoxSelectMultiple
 
 https://github.com/django-crispy-forms/django-crispy-forms/issues/690
+
+
+### Expand this wiki page stub to include literature review from building revex
+
+https://en.wikipedia.org/wiki/String_generation
