@@ -14,6 +14,8 @@ RUN apt-get -y install pkg-config
 RUN apt-get -y install autogen autoconf libtool
 RUN apt-get -y install byacc flex
 RUN apt-get -y install bison
+RUN git clone https://github.com/ellson/graphviz.git /root/graphviz
+RUN cd /root/graphviz; ./autogen.sh; ./configure --enable-perl=no; make -j8
 WORKDIR /root
 ADD ./bug.py /root/pygraphviz/bug.py
 
