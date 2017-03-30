@@ -1,8 +1,29 @@
+from bisect import bisect_left
 from collections.abc import MutableMapping
+from functools import total_ordering
 from operator import itemgetter
 
 
 firstof = itemgetter(0)
+
+
+@total_ordering
+class _KeyValue(object):
+    __slots__ = ('key', 'value')
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def __lt__(self, other):
+        return self.key < other.key
+
+    def __eq__(self, other):
+        # N.B.: This means that two _KeyValue objects with different
+        # values can be "equal". This is because the `bisect` module
+        # cannot take custom key functions, and this is intended for
+        # getting the sort ordering correct.
+        return (isinstance(other, KeyValue) and
+                self.key == other.key)
 
 
 class SortedDict(MutableMapping):
@@ -11,26 +32,38 @@ class SortedDict(MutableMapping):
         if items:
             self.update(items)
 
-    def find_position_for_key(self, key):
-        """
-        Returns the position of key _should_ be at, if it is present in the map.
-        """
-        raise NotImplementedError
-
     def __setitem__(self, k, v):
-        raise NotImplementedError
+        item = _KeyValue(k, v)
+        position = bisect_left(self.items_list, item)
+        if position == len(self.items_list):
+            self.items_list.append(item)
+        elif self.items_list[position] == item:
+            # Same keys, so update the value.
+            self.items_list[position] = item
+        else:
+            self.items_list.insert(position, item)
 
-    def __delitem__(self, key):
-        raise NotImplementedError
+    def __delitem__(self, k):
+        item = _KeyValue(k, None)
+        position = bisect_left(self.items_list, item)
+        if position == len(self.items_list):
+            raise KeyError(k)
+        else:
+            del self.items_list[position]
 
-    def __getitem__(elf, key):
-        raise NotImplementedError
+    def __getitem__(self, k):
+        item = _KeyValue(k, None)
+        position = bisect_left(self.items_list, item)
+        if position == len(self.items_list):
+            raise KeyError(k)
+        else:
+            return self.items_list[position].key
 
     def __iter__(self):
         return (k for k, v in self.items_list)
 
     def items(self):
-        return list(self.items_list)
+        return list(map(tuple, self.items_list))
 
     def __len__(self):
         return len(self.items_list)
