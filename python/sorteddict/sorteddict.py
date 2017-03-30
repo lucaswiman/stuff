@@ -25,6 +25,9 @@ class _KeyValue(object):
         return (isinstance(other, KeyValue) and
                 self.key == other.key)
 
+    def __repr__(self):
+        return '{self.__class__.__name__}({self.key!r}, {self.value!r})'.format(self=self)
+
 
 class SortedDict(MutableMapping):
     def __init__(self, items=()):
@@ -57,7 +60,7 @@ class SortedDict(MutableMapping):
         if position == len(self.items_list):
             raise KeyError(k)
         else:
-            return self.items_list[position].key
+            return self.items_list[position].value
 
     def __iter__(self):
         return (k for k, v in self.items_list)
