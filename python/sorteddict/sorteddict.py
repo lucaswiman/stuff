@@ -22,7 +22,7 @@ class _KeyValue(object):
         # values can be "equal". This is because the `bisect` module
         # cannot take custom key functions, and this is intended for
         # getting the sort ordering correct.
-        return (isinstance(other, KeyValue) and
+        return (isinstance(other, _KeyValue) and
                 self.key == other.key)
 
     def __repr__(self):
@@ -63,10 +63,13 @@ class SortedDict(MutableMapping):
             return self.items_list[position].value
 
     def __iter__(self):
-        return (k for k, v in self.items_list)
+        return (item.key for item in self.items_list)
 
     def items(self):
-        return list(map(tuple, self.items_list))
+        return [(item.key, item.value) for item in self.items_list]
+
+    def values(self):
+        return [item.value for item in self.items_list]
 
     def __len__(self):
         return len(self.items_list)
