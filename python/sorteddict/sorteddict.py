@@ -10,6 +10,7 @@ firstof = itemgetter(0)
 @total_ordering
 class _KeyValue(object):
     __slots__ = ('key', 'value')
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
