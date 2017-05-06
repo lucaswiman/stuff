@@ -1,7 +1,7 @@
 from setuptools import setup
 import sys
 
-install_requires = ['six']
+install_requires = ['six', 'toolz']
 if sys.version_info < (3, 5):
     install_requires.append('typing')
 

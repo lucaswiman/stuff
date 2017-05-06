@@ -1,8 +1,11 @@
-from collections import Iterable, namedtuple
+from collections import namedtuple
+
+from toolz import interleave
 
 
 class Rule(object):
     __slots__ = ()
+
     def matches_at_position(self, string, position):
         """
         Returns a generator of matches in the string which start at position.
@@ -15,6 +18,17 @@ class Rule(object):
     def __add__(self, other):
         return Concatenation(self, other)
 
+    def __or__(self, other):
+        return Disjunction(self, other)
+
+    def parse(self, string):
+        """
+        Returns an iterator of all parse trees of the string for the given rule.
+        """
+        for match in self.matches_at_position(string, 0):
+            if match.length == len(string):
+                yield match
+
 
 class Match(namedtuple('Match', ('string', 'position', 'length', 'rule', 'children'))):
     def __new__(cls, string, position, length, rule=None, children=()):
@@ -26,6 +40,7 @@ class Match(namedtuple('Match', ('string', 'position', 'length', 'rule', 'childr
 
 class _Epsilon(Rule):
     __slots__ = ()
+
     def __new__(cls):
         try:
             return Epsilon
@@ -72,6 +87,7 @@ class Literal(Rule):
 
 class Concatenation(Rule):
     __slots__ = ('head', 'tail')
+
     def __new__(cls, *args):
         if not args:
             return Epsilon
@@ -116,3 +132,26 @@ class Concatenation(Rule):
                     children=children,
                     rule=self,
                 )
+
+
+class Disjunction(tuple, Rule):
+    def __new__(cls, *args):
+        disjuncts = []
+        for arg in args:
+            if isinstance(arg, Disjunction):
+                disjuncts.extend(arg)
+            else:
+                disjuncts.append(arg)
+        return super(Disjunction, cls).__new__(cls, disjuncts)
+
+    def __repr__(self):
+        return '%s%s' % (self.__class__.__name__, super(Disjunction, self).__repr__())
+
+    def __eq__(self, other):
+        return isinstance(other, Disjunction) and tuple.__eq__(self, other)
+
+    def matches_at_position(self, string, position):
+        # Do a breadth-first search over the set of matches.
+        return interleave(
+            disjunct.matches_at_position(string, position)
+            for disjunct in self)
