@@ -1,9 +1,10 @@
 *.pyc
 __pycache__
 .coverage
-.egg-info
+*.egg-info
 .idea
 .venv
 pr-drafts
 .venv
 .hypothesis
+.tox
