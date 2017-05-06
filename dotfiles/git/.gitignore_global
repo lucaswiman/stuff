@@ -8,3 +8,4 @@ pr-drafts
 .venv
 .hypothesis
 .tox
+.cache
