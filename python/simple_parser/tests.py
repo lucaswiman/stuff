@@ -1,13 +1,13 @@
 from itertools import product
-from simple_parser import Literal as L, Concatenation, Match, Reference, Epsilon
+from simple_parser import Literal as L, Concatenation, Node, Reference, Epsilon
 
 def test_concatenation():
     rule = Concatenation(L('abc'), L('123'))
     s = 'abc123'
     assert list(rule.matches_at_position(s, 0)) == [
-        Match(s, 0, 6,
+        Node(s, 0, 6,
               rule=rule,
-              children=(Match(s, 0, 3, L('abc')), Match(s, 3, 3, L('123')))
+              children=(Node(s, 0, 3, L('abc')), Node(s, 3, 3, L('123')))
         )
     ]
 

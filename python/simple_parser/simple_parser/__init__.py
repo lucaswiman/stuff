@@ -32,9 +32,9 @@ class Rule(object):
         return bool(next(self.parse(string), False))
 
 
-class Match(namedtuple('Match', ('string', 'position', 'length', 'rule', 'children'))):
+class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children'))):
     def __new__(cls, string, position, length, rule=None, children=()):
-        return super(Match, cls).__new__(cls, string, position, length, rule, children)
+        return super(Node, cls).__new__(cls, string, position, length, rule, children)
 
     def __str__(self):
         return self.string[self.position:self.position + self.length]
@@ -58,7 +58,7 @@ class Literal(Rule):
 
     def matches_at_position(self, string, position, stack=pset()):
         if string.startswith(self.literal, position):
-            yield Match(string, position, self.length, rule=self)
+            yield Node(string, position, self.length, rule=self)
 
 
 Epsilon = Literal('')
@@ -111,11 +111,9 @@ class Concatenation(Rule):
             return
         stack = stack.add((self, position))
         for match in self.head.matches_at_position(string, position, stack=stack):
-            if self.tail.matches_at_position(string, position + match.length, stack=stack) is None:
-                from pytest import set_trace; set_trace()
             for tail_match in self.tail.matches_at_position(string, position + match.length, stack=stack):
                 children = (match, ) + (tail_match.children if tail_match.children else (tail_match, ))
-                yield Match(
+                yield Node(
                     string,
                     position,
                     length=match.length + tail_match.length,
