@@ -40,32 +40,6 @@ class Match(namedtuple('Match', ('string', 'position', 'length', 'rule', 'childr
         return self.string[self.position:self.position + self.length]
 
 
-class _Epsilon(Rule):
-    __slots__ = ()
-
-    def __new__(cls):
-        try:
-            return Epsilon
-        except NameError:
-            return super(_Epsilon, cls).__new__(cls)
-
-    def __hash__(self):
-        return hash(self.__class__)
-
-    def matches_at_position(self, string, position, stack=pset()):
-        # consumes 0 characters whatever the string
-        yield Match(string, position, 0, rule=self)
-
-    def __add__(self, other):
-        return other
-
-    def __radd__(self, other):
-        return other
-
-
-Epsilon = _Epsilon()
-
-
 class Literal(Rule):
     __slots__ = ('literal', 'length')
 
@@ -85,6 +59,9 @@ class Literal(Rule):
     def matches_at_position(self, string, position, stack=pset()):
         if string.startswith(self.literal, position):
             yield Match(string, position, self.length, rule=self)
+
+
+Epsilon = Literal('')
 
 
 class Concatenation(Rule):
