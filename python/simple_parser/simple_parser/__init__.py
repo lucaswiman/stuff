@@ -162,10 +162,10 @@ class Disjunction(tuple, Rule):
 
 
 class Reference(Rule):
-    __slots__ = ('name', 'namespace')
-    def __init__(self, name, namespace):
+    __slots__ = ('name', 'grammar')
+    def __init__(self, name, grammar):
         self.name = name
-        self.namespace = namespace
+        self.grammar = grammar
 
     def __repr__(self):
         return 'Reference<%r>' % self.name
@@ -180,11 +180,11 @@ class Reference(Rule):
         return (
             isinstance(other, Reference) and
             self.name == other.name and
-            self.namespace is other.namespace)
+            self.grammar is other.grammar)
 
     def matches_at_position(self, string, position, stack=pset()):
         if (self, position) in stack:
             # Prevent infinite recursion for zero-length matches.
             return
         stack = stack.add((self, position))
-        yield from self.namespace[self.name].matches_at_position(string, position, stack=stack)
+        yield from self.grammar[self.name].matches_at_position(string, position, stack=stack)

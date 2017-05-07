@@ -25,32 +25,32 @@ def test_disjunction():
 
 
 def test_reference():
-    namespace = {}
-    S = Reference('S', namespace)
-    namespace['S'] = L('a') + (S | Epsilon) + L('b')
+    grammar = {}
+    S = Reference('S', grammar)
+    grammar['S'] = L('a') + (S | Epsilon) + L('b')
 
     strings = set(map(''.join, product(*([['', 'a', 'b']] * 8))))
     assert set(filter(S.matches, strings)) == {'ab', 'aabb', 'aaabbb', 'aaaabbbb'}
 
 
 def test_recursive_empty():
-    namespace = {}
-    S = Reference('S', namespace)
-    namespace['S'] = ((Epsilon | L('a')) + S) | L('a')
+    grammar = {}
+    S = Reference('S', grammar)
+    grammar['S'] = ((Epsilon | L('a')) + S) | L('a')
     assert S.matches('a')
     assert S.matches('aaaaaa')
     assert not S.matches('b')
     assert not S.matches('aaab')
     assert not S.matches('')
 
-    namespace = {}
-    S = Reference('S', namespace)
-    namespace['S'] = Epsilon | S
+    grammar = {}
+    S = Reference('S', grammar)
+    grammar['S'] = Epsilon | S
     assert S.matches('')
     assert not S.matches('a')
 
-    namespace = {}
-    S = Reference('S', namespace)
-    namespace['S'] = S
+    grammar = {}
+    S = Reference('S', grammar)
+    grammar['S'] = S
     assert not S.matches('')
     assert not S.matches('a')
