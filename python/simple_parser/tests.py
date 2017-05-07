@@ -39,4 +39,17 @@ def test_recursive_empty():
     assert S.matches('a')
     assert S.matches('aaaaaa')
     assert not S.matches('b')
+    assert not S.matches('aaab')
     assert not S.matches('')
+
+    namespace = {}
+    S = Reference('S', namespace)
+    namespace['S'] = Epsilon | S
+    assert S.matches('')
+    assert not S.matches('a')
+
+    namespace = {}
+    S = Reference('S', namespace)
+    namespace['S'] = S
+    assert not S.matches('')
+    assert not S.matches('a')

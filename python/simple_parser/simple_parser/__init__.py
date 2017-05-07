@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+from pyrsistent import pset
 from toolz import interleave
 
 
@@ -23,7 +24,7 @@ class Rule(object):
         """
         Returns an iterator of all parse trees of the string for the given rule.
         """
-        for match in self.matches_at_position(string, 0):
+        for match in self.matches_at_position(string, 0, stack=pset()):
             if match.length == len(string):
                 yield match
 
@@ -51,7 +52,7 @@ class _Epsilon(Rule):
     def __hash__(self):
         return hash(self.__class__)
 
-    def matches_at_position(self, string, position):
+    def matches_at_position(self, string, position, stack=pset()):
         # consumes 0 characters whatever the string
         yield Match(string, position, 0, rule=self)
 
@@ -81,7 +82,7 @@ class Literal(Rule):
     def __repr__(self):
         return 'Literal(%r)' % self.literal
 
-    def matches_at_position(self, string, position):
+    def matches_at_position(self, string, position, stack=pset()):
         if string.startswith(self.literal, position):
             yield Match(string, position, self.length, rule=self)
 
@@ -127,9 +128,15 @@ class Concatenation(Rule):
         else:
             return Concatenation(*(tuple(self) + (other, )))
 
-    def matches_at_position(self, string, position):
-        for match in self.head.matches_at_position(string, position):
-            for tail_match in self.tail.matches_at_position(string, position + match.length):
+    def matches_at_position(self, string, position, stack=pset()):
+        if (self, position) in stack:
+            # Prevent infinite recursion for zero-length terminals
+            return
+        stack = stack.add((self, position))
+        for match in self.head.matches_at_position(string, position, stack=stack):
+            if self.tail.matches_at_position(string, position + match.length, stack=stack) is None:
+                from pytest import set_trace; set_trace()
+            for tail_match in self.tail.matches_at_position(string, position + match.length, stack=stack):
                 children = (match, ) + (tail_match.children if tail_match.children else (tail_match, ))
                 yield Match(
                     string,
@@ -164,10 +171,14 @@ class Disjunction(tuple, Rule):
     def __eq__(self, other):
         return isinstance(other, Disjunction) and tuple.__eq__(self, other)
 
-    def matches_at_position(self, string, position):
+    def matches_at_position(self, string, position, stack=pset()):
         # Do a breadth-first search over the set of matches.
-        return interleave(
-            disjunct.matches_at_position(string, position)
+        if (self, position) in stack:
+            # Prevent infinite recursion for zero-length terminals
+            return
+        stack = stack.add((self, position))
+        yield from interleave(
+            disjunct.matches_at_position(string, position, stack=stack)
             for disjunct in self)
 
 
@@ -192,5 +203,9 @@ class Reference(Rule):
             self.name == other.name and
             self.namespace is other.namespace)
 
-    def matches_at_position(self, string, position):
-        return self.namespace[self.name].matches_at_position(string, position)
+    def matches_at_position(self, string, position, stack=pset()):
+        if (self, position) in stack:
+            # Prevent infinite recursion for zero-length matches.
+            return
+        stack = stack.add((self, position))
+        yield from self.namespace[self.name].matches_at_position(string, position, stack=stack)
