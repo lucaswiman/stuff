@@ -4,8 +4,6 @@ from toolz import interleave
 
 
 class Rule(object):
-    __slots__ = ()
-
     def matches_at_position(self, string, position):
         """
         Returns a generator of matches in the string which start at position.
@@ -28,6 +26,9 @@ class Rule(object):
         for match in self.matches_at_position(string, 0):
             if match.length == len(string):
                 yield match
+
+    def matches(self, string):
+        return bool(next(self.parse(string), False))
 
 
 class Match(namedtuple('Match', ('string', 'position', 'length', 'rule', 'children'))):
@@ -155,3 +156,25 @@ class Disjunction(tuple, Rule):
         return interleave(
             disjunct.matches_at_position(string, position)
             for disjunct in self)
+
+
+class Reference(Rule):
+    __slots__ = ('name', 'namespace')
+    def __init__(self, name, namespace):
+        self.name = name
+        self.namespace = namespace
+
+    def __repr__(self):
+        return 'Reference<%r>' % self.name
+
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Reference) and
+            self.name == other.name and
+            self.namespace is other.namespace)
+
+    def matches_at_position(self, string, position):
+        return self.namespace[self.name].matches_at_position(string, position)

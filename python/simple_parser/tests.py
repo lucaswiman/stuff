@@ -1,4 +1,5 @@
-from simple_parser import Literal as L, Concatenation, Match
+from itertools import product
+from simple_parser import Literal as L, Concatenation, Match, Reference, Epsilon
 
 def test_concatenation():
     rule = Concatenation(L('abc'), L('123'))
@@ -20,3 +21,12 @@ def test_disjunction():
 
     # But only two of them match the whole string:
     assert len(list(rule.parse(s))) == 2
+
+
+def test_reference():
+    namespace = {}
+    S = Reference('S', namespace)
+    namespace['S'] = L('a') + (S | Epsilon) + L('b')
+
+    strings = set(map(''.join, product(*([['', 'a', 'b']] * 8))))
+    assert set(filter(S.matches, strings)) == {'ab', 'aabb', 'aaabbb', 'aaaabbbb'}
