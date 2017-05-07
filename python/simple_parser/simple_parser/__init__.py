@@ -87,7 +87,7 @@ class Literal(Rule):
 
 
 class Concatenation(Rule):
-    __slots__ = ('head', 'tail')
+    __slots__ = ('head', 'tail', '_hash')
 
     def __new__(cls, *args):
         if not args:
@@ -105,6 +105,11 @@ class Concatenation(Rule):
             isinstance(other, Concatenation) and
             self.head == other.head and
             self.tail == other.tail)
+
+    def __hash__(self):
+        if not hasattr(self, '_hash'):
+            self._hash = hash((self.__class__, self.head, self.tail))
+        return self._hash
 
     def __iter__(self):
         cur = self
@@ -151,6 +156,11 @@ class Disjunction(tuple, Rule):
     def __add__(self, other):
         return Rule.__add__(self, other)
 
+    def __hash__(self):
+        if not hasattr(self, '_hash'):
+            self._hash = tuple.__hash__(self)
+        return self._hash
+
     def __eq__(self, other):
         return isinstance(other, Disjunction) and tuple.__eq__(self, other)
 
@@ -169,6 +179,9 @@ class Reference(Rule):
 
     def __repr__(self):
         return 'Reference<%r>' % self.name
+
+    def __hash__(self):
+        return hash(self.name)
 
     def __str__(self):
         return self.name
