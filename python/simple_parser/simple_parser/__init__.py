@@ -148,6 +148,9 @@ class Disjunction(tuple, Rule):
     def __repr__(self):
         return '%s%s' % (self.__class__.__name__, super(Disjunction, self).__repr__())
 
+    def __add__(self, other):
+        return Rule.__add__(self, other)
+
     def __eq__(self, other):
         return isinstance(other, Disjunction) and tuple.__eq__(self, other)
 

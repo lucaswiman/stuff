@@ -30,3 +30,13 @@ def test_reference():
 
     strings = set(map(''.join, product(*([['', 'a', 'b']] * 8))))
     assert set(filter(S.matches, strings)) == {'ab', 'aabb', 'aaabbb', 'aaaabbbb'}
+
+
+def test_recursive_empty():
+    namespace = {}
+    S = Reference('S', namespace)
+    namespace['S'] = ((Epsilon | L('a')) + S) | L('a')
+    assert S.matches('a')
+    assert S.matches('aaaaaa')
+    assert not S.matches('b')
+    assert not S.matches('')
