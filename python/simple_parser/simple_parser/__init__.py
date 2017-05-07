@@ -36,8 +36,12 @@ class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children
     def __new__(cls, string, position, length, rule=None, children=()):
         return super(Node, cls).__new__(cls, string, position, length, rule, children)
 
+    @property
+    def text(self):
+        return self.string[position:position+length]
+
     def __str__(self):
-        return self.string[self.position:self.position + self.length]
+        return self.text
 
 
 class Literal(Rule):

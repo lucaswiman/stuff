@@ -1,6 +1,7 @@
 from itertools import product
 from simple_parser import Literal as L, Concatenation, Node, Reference, Epsilon
 
+
 def test_concatenation():
     rule = Concatenation(L('abc'), L('123'))
     s = 'abc123'
