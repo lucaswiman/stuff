@@ -1,5 +1,5 @@
 from itertools import product
-from simple_parser import Literal as L, Concatenation, Node, Reference, Epsilon
+from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, Ignored, should_ignore
 
 
 def test_concatenation():
@@ -54,3 +54,7 @@ def test_recursive_empty():
     grammar['S'] = S
     assert not S.matches('')
     assert not S.matches('a')
+
+
+def test_ignoring():
+    assert should_ignore((L('b') + Ignored(Epsilon)).parse('b').children[1].rule)
