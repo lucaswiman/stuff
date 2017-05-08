@@ -26,14 +26,14 @@ class Grammar(OrderedDict):
     def __setitem__(self, key, value):
         if key in self:
             raise ValueError('Rule %r already defined: %r' % (key, self[key]))
-        super(Grammar, self).__setitem__(key, value)
+        super(Grammar, self).__setitem__(key, NamedRule(key, value, grammar=self))
 
     def define_rule(self, rule_definition, default_rule=False):
         """
         Takes in a rule definition and a visitor method, and adds a rule to the grammar
         of the appropriate name. This allows a grammar definition to be right next to the
         visitor code that deserializes it.
-        
+
         class MyVisitor(NodeVisitor):
             grammar = Grammar()
 
@@ -43,7 +43,7 @@ class Grammar(OrderedDict):
             @grammar.define_rule('"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"')
             def visit_number(self, node, *children):
                 return node.text
-        
+
         After executing this code, MyVisitor.grammar will consist of two rules (numbers and
         number), with number the default.
         """
@@ -56,10 +56,10 @@ class Grammar(OrderedDict):
             if not visit_method.__name__.startswith('visit_'):
                 raise ValueError('Cannot interpret name for %r' % visit_method)
             name = visit_method.__name__[len('visit_'):]
-            self[name] = NamedRule(name, rule, grammar=self)
+            self[name] = rule
             if default_rule:
                 self.default_rule = self[name]
-            
+
             return visit_method
 
         return decorator
@@ -77,6 +77,10 @@ class NodeVisitor(object):
         visitor_method = self.generic_visit
         if should_ignore(node.rule):
             return IGNORED
+        if isinstance(node.rule, Reference):
+            [child] = node.children
+            return self.visit(child)
+
         name = getattr(node.rule, 'name', None)
         if name:
             visitor_method = getattr(self, 'visit_%s' % name, visitor_method)
@@ -93,7 +97,7 @@ class Rule(object):
     def matches_at_position(self, string, position):
         """
         Returns a generator of matches in the string which start at position.
-        
+
         Should be implemented by subclasses.
         """
         raise NotImplementedError
@@ -163,9 +167,11 @@ class NamedRule(Rule):
 def should_ignore(rule):
     if isinstance(rule, Reference):
         return rule.ignored or should_ignore(rule.referent)
+    elif isinstance(rule, NamedRule):
+        return should_ignore(rule.rule)
     else:
         return isinstance(rule, Ignored)
-    
+
 
 
 class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children'))):
@@ -338,7 +344,7 @@ class Reference(Rule):
 class Charclass(Rule):
     """
     A regular expression character class.
-    
+
     Note that we do not allow full regular expressions here for the following reasons:
     1. PCRE's can recognize some languages which are not even context-free due to backreferences.
     2. Using Python's regex engine means that we have very limited control over how many
@@ -353,7 +359,7 @@ class Charclass(Rule):
     That would replace this rule once the grammar has been bootstrapped.
     """
     __slots__ = ('re', )
-    
+
     def __init__(self, charclass):
         if not re.match(r'^\[([^\]]|(?<=\\)\])+\]$', charclass):
             raise ValueError('This does not look like a charclass')
@@ -381,7 +387,7 @@ class Ignored(Rule):
     """
     Class for marking that visitors should ignore matches from this rule. It can be
     used in the following syntaxes:
-    
+
     foo.ignored = ...  # This will ignore visiting all references to foo.
     bar = foo.ignored "asdf"  # Only this reference will be ignored.
     baz = "foo".ignore "baz"  # The word "foo" will be ignored.
@@ -419,8 +425,6 @@ class ParseError(Exception):
     pass
 
 
-
-
 BOOTSTRAP_GRAMMAR = Grammar()
 ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
@@ -433,22 +437,21 @@ class _GrammarVisitor(NodeVisitor):
 
     def __init__(self):
         self.constructed_grammar = Grammar()
-    
+
     @grammar.define_rule(ref('identifier'))
     def visit_rule_name(self, node, *ignored):
         return node.text
 
-    @grammar.define_rule(ref('_') + ref('rule_assigment') + ref('_') + (ref('rule_assigment') | Epsilon))
-    def visit_rule_assignments(self, *names_and_rules):
+    @grammar.define_rule(
+        ref('_') + ref('rule_assignment') + ref('_') + (ref('rule_assignment') | Epsilon.i),
+        default_rule=True)
+    def visit_rule_assignments(self, node, *names_and_rules):
         self.constructed_grammar.update(names_and_rules)
-        self.constructed_grammar.default_rule = names_and_rules[0][0]
+        self.constructed_grammar.default_rule = names_and_rules[0][1]
         return self.constructed_grammar
 
-    @grammar.define_rule(
-        ref('rule_name') + ref('_') + Ignored(L("=")) + ref('_') + ref('rule_definition'),
-        default_rule=True)  # TODO: should be a list of rules and the default rule should be set there.
+    @grammar.define_rule(ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition'))
     def visit_rule_assignment(self, node, name, rule):
-        rule = NamedRule(name, rule, grammar=self.constructed_grammar)
         return name, rule
 
     # We want disjunction to have lower precedence than concatenation.
@@ -456,11 +459,11 @@ class _GrammarVisitor(NodeVisitor):
     def visit_rule_definition(self, node, rule):
         return rule
 
-    @grammar.define_rule(ref('concatenation') + ((ref('_') + Ignored(L("|")) + ref('_') + ref('disjunction')) | Ignored(Epsilon)))
+    @grammar.define_rule(ref('concatenation') + ((ref('_') + L("|").i + ref('_') + ref('disjunction')) | Epsilon.i))
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
-    @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Ignored(Epsilon)))
+    @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Epsilon.i))
     def visit_concatenation(self, node, *terms):
         return reduce(operator.add, terms)
 
@@ -468,6 +471,6 @@ class _GrammarVisitor(NodeVisitor):
     def visit_term(self, node, item):
         return item
 
-    @grammar.define_rule(L('"') + ref('escaped_quote_body') + L('"'))
-    def visit_literal(self, node, *ignored):
+    @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
+    def visit_literal(self, node):
         return Literal(literal_eval(node.text))
