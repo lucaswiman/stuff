@@ -1,5 +1,5 @@
 from itertools import product
-from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, Ignored, should_ignore
+from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, Ignored, should_ignore, _GrammarVisitor
 
 
 def test_concatenation():
@@ -58,3 +58,11 @@ def test_recursive_empty():
 
 def test_ignoring():
     assert should_ignore((L('b') + Ignored(Epsilon)).parse('b').children[1].rule)
+
+
+def test_parsing_a_grammar():
+    grammar = _GrammarVisitor().parse('foo = "bar"')
+    parsed = _GrammarVisitor().parse('foo = "bar"').parse('bar')
+
+    # TODO: is this parse tree correct?
+    assert parsed == Node('bar', position=0, length=3, rule=L('bar'), children=())
