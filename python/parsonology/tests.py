@@ -1,5 +1,6 @@
 from itertools import product
-from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, Ignored, should_ignore, _GrammarVisitor
+from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, \
+    Ignored, should_ignore, _GrammarVisitor, NamedRule
 
 
 def test_concatenation():
@@ -62,7 +63,9 @@ def test_ignoring():
 
 def test_parsing_a_grammar():
     grammar = _GrammarVisitor().parse('foo = "bar"')
-    parsed = _GrammarVisitor().parse('foo = "bar"').parse('bar')
+    parsed = grammar.parse('bar')
 
     # TODO: is this parse tree correct?
-    assert parsed == Node('bar', position=0, length=3, rule=L('bar'), children=())
+    assert parsed == Node(string='bar', position=0, length=3,
+                          rule=NamedRule('foo', L('bar'), grammar=grammar),
+                          children=())

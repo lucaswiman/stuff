@@ -447,7 +447,7 @@ class _GrammarVisitor(NodeVisitor):
         default_rule=True)
     def visit_rule_assignments(self, node, *names_and_rules):
         self.constructed_grammar.update(names_and_rules)
-        self.constructed_grammar.default_rule = names_and_rules[0][1]
+        self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
         return self.constructed_grammar
 
     @grammar.define_rule(ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition'))
