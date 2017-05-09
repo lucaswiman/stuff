@@ -1,0 +1,16 @@
+[run]
+branch = True
+omit =
+    parsonology/tests/*
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    raise AssertionError
+    raise TypeError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    raise ValueError
+    assert False
+show_missing = 1

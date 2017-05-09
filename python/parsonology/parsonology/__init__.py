@@ -296,9 +296,11 @@ class Disjunction(tuple, Rule):
             # Prevent infinite recursion for zero-length terminals
             return
         stack = stack.add((self, position))
-        yield from interleave(
+        matches = interleave(
             disjunct.matches_at_position(string, position, stack=stack)
             for disjunct in self)
+        for match in matches:
+            yield match
 
 
 class Reference(Rule):
