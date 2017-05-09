@@ -9,10 +9,12 @@ from toolz import interleave
 
 
 class Grammar(OrderedDict):
-    def __init__(self, grammar_text=None, default_rule=None):
-        assert not grammar_text, 'Not implemented yet'
+
+    def __init__(self, grammar_text=None):
+        self.default_rule = None
         super(Grammar, self).__init__()
-        self.default_rule = default_rule
+        if grammar_text:
+            _GrammarVisitor(grammar=self).parse(grammar_text)
 
     def parse(self, string):
         """
@@ -434,8 +436,8 @@ class _GrammarVisitor(NodeVisitor):
     grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon)
     grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
 
-    def __init__(self):
-        self.constructed_grammar = Grammar()
+    def __init__(self, grammar=None):
+        self.constructed_grammar = Grammar() if grammar is None else grammar
 
     @grammar.define_rule(ref('identifier'))
     def visit_rule_name(self, node, *ignored):

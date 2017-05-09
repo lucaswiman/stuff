@@ -1,6 +1,9 @@
 from itertools import product
+
+import pytest
+
 from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, \
-    Ignored, should_ignore, _GrammarVisitor, NamedRule
+    Ignored, should_ignore, _GrammarVisitor, NamedRule, ParseError, Grammar
 
 
 def test_concatenation():
@@ -62,10 +65,16 @@ def test_ignoring():
 
 
 def test_parsing_a_grammar():
-    grammar = _GrammarVisitor().parse('foo = "bar"')
+    grammar = Grammar('foo = "bar"')
     parsed = grammar.parse('bar')
 
-    # TODO: is this parse tree correct?
     assert parsed == Node(string='bar', position=0, length=3,
                           rule=NamedRule('foo', L('bar'), grammar=grammar),
                           children=())
+
+    with pytest.raises(ParseError):
+        grammar.parse('baz')
+    with pytest.raises(ParseError):
+        grammar.parse('barbaz')
+
+    assert Grammar('foo = "bar" "baz"').parse('barbaz')
