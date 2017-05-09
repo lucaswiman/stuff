@@ -22,7 +22,7 @@ def test_disjunction():
     assert len(list(rule.matches_at_position(s, 0))) == 3
 
     # But only two of them match the whole string:
-    assert len(list(rule.parse(s))) == 2
+    assert len(list(rule.all_parses(s))) == 2
 
 
 def test_reference():
@@ -31,30 +31,30 @@ def test_reference():
     grammar['S'] = L('a') + (S | Epsilon) + L('b')
 
     strings = set(map(''.join, product(*([['', 'a', 'b']] * 8))))
-    assert set(filter(S.matches, strings)) == {'ab', 'aabb', 'aaabbb', 'aaaabbbb'}
+    assert set(filter(S.parse, strings)) == {'ab', 'aabb', 'aaabbb', 'aaaabbbb'}
 
 
 def test_recursive_empty():
     grammar = {}
     S = Reference('S', grammar)
     grammar['S'] = ((Epsilon | L('a')) + S) | L('a')
-    assert S.matches('a')
-    assert S.matches('aaaaaa')
-    assert not S.matches('b')
-    assert not S.matches('aaab')
-    assert not S.matches('')
+    assert S.parse('a')
+    assert S.parse('aaaaaa')
+    assert not S.parse('b')
+    assert not S.parse('aaab')
+    assert not S.parse('')
 
     grammar = {}
     S = Reference('S', grammar)
     grammar['S'] = Epsilon | S
-    assert S.matches('')
-    assert not S.matches('a')
+    assert S.parse('')
+    assert not S.parse('a')
 
     grammar = {}
     S = Reference('S', grammar)
     grammar['S'] = S
-    assert not S.matches('')
-    assert not S.matches('a')
+    assert not S.parse('')
+    assert not S.parse('a')
 
 
 def test_ignoring():

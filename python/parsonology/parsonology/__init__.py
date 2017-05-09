@@ -132,9 +132,6 @@ class Rule(object):
         """
         return next(self.all_parses(string), None)
 
-    def matches(self, string):
-        return bool(next(self.parse(string), False))
-
 
 class NamedRule(Rule):
     __slots__ = ('name', 'rule', 'ignored')
