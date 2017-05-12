@@ -52,7 +52,8 @@ class Grammar(OrderedDict):
         if isinstance(rule_definition, Rule):
             rule = rule_definition
         else:
-            raise NotImplementedError('TODO: parse strings and stuff')
+            parsed = GrammarVisitor.grammar['rule_definition'].parse(rule_definition)
+            rule = GrammarVisitor(self).visit(parsed)
 
         def decorator(visit_method):
             if not visit_method.__name__.startswith('visit_'):
@@ -430,7 +431,7 @@ BOOTSTRAP_GRAMMAR = Grammar()
 ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
 
-class _BootstrapGrammarVisitor(NodeVisitor):
+class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
     grammar['_'] = (Epsilon | (Charclass(r'[\s]') + ref('_'))).i
     grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon)
@@ -438,6 +439,37 @@ class _BootstrapGrammarVisitor(NodeVisitor):
 
     def __init__(self, grammar=None):
         self.constructed_grammar = Grammar() if grammar is None else grammar
+
+    # We want disjunction to have lower precedence than concatenation.
+    @grammar.define_rule(ref('disjunction'))
+    def visit_rule_definition(self, node, rule):
+        return rule
+
+    @grammar.define_rule(ref('concatenation') + ((ref('_') + L("|").i + ref('_') + ref('disjunction')) | Epsilon.i))
+    def visit_disjunction(self, node, *disjuncts):
+        return reduce(operator.or_, disjuncts)
+
+    @grammar.define_rule(ref('literal') | ref('charclass'))
+    def visit_term(self, node, item):
+        return item
+
+    @grammar.define_rule(((Literal('\]') | Charclass(r'[^\]]')) + ref('charclass_body')) | Epsilon.i)
+    def visit_charclass_body(self, node, *_):
+        return node.text
+
+    @grammar.define_rule(Literal('[') + ref('charclass_body') + Literal(']'))
+    def visit_charclass(self, node, *_):
+        return Charclass(node.text)
+
+    @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Epsilon.i))
+    def visit_concatenation(self, node, first_term, *term_groups):
+        terms = [first_term]
+
+        # TODO: this is really ugly. Is there some way to introspect that
+        # `(ref('_').i + ref('term')` will always have a useless form that should
+        # be automatically unpacked.
+        terms.extend(t for (t, ) in term_groups)
+        return reduce(operator.add, terms)
 
     @grammar.define_rule(ref('identifier'))
     def visit_rule_name(self, node, *ignored):
@@ -455,32 +487,14 @@ class _BootstrapGrammarVisitor(NodeVisitor):
     def visit_rule_assignment(self, node, name, rule):
         return name, rule
 
-    # We want disjunction to have lower precedence than concatenation.
-    @grammar.define_rule(ref('disjunction'))
-    def visit_rule_definition(self, node, rule):
-        return rule
-
-    @grammar.define_rule(ref('concatenation') + ((ref('_') + L("|").i + ref('_') + ref('disjunction')) | Epsilon.i))
-    def visit_disjunction(self, node, *disjuncts):
-        return reduce(operator.or_, disjuncts)
-
-    @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Epsilon.i))
-    def visit_concatenation(self, node, first_term, *term_groups):
-        terms = [first_term]
-
-        # TODO: this is really ugly. Is there some way to introspect that
-        # `(ref('_').i + ref('term')` will always have a useless form that should
-        # be automatically unpacked.
-        terms.extend(t for (t, ) in term_groups)
-        return reduce(operator.add, terms)
-
-    @grammar.define_rule(ref('literal'))  #| ref('charclass'))
-    def visit_term(self, node, item):
-        return item
-
     @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
     def visit_literal(self, node):
         return Literal(literal_eval(node.text))
 
 
-GrammarVisitor = _BootstrapGrammarVisitor
+def bootstrap(definition):
+    def decorator(method):
+        method = GrammarVisitor.grammar.define(definition)
+        setattr(GrammarVisitor, method.name, method)
+        return method
+    return decorator
