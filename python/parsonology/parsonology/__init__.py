@@ -4,8 +4,8 @@ from ast import literal_eval
 from collections import namedtuple, OrderedDict
 from functools import reduce, partial
 
+import itertools
 from pyrsistent import pset
-from toolz import interleave
 
 
 class Grammar(OrderedDict):
@@ -298,9 +298,9 @@ class Disjunction(tuple, Rule):
             # Prevent infinite recursion for zero-length terminals
             return
         stack = stack.add((self, position))
-        matches = interleave(
+        matches = itertools.chain(*(
             disjunct.matches_at_position(string, position, stack=stack)
-            for disjunct in self)
+            for disjunct in self))
         for match in matches:
             yield match
 
