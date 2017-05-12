@@ -3,7 +3,7 @@ from itertools import product
 import pytest
 
 from parsonology import Literal as L, Concatenation, Node, Reference, Epsilon, \
-    Ignored, should_ignore, _GrammarVisitor, NamedRule, ParseError, Grammar
+    Ignored, should_ignore, GrammarVisitor, NamedRule, ParseError, Grammar
 
 
 def test_concatenation():

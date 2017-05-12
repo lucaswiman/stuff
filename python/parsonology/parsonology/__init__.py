@@ -14,7 +14,7 @@ class Grammar(OrderedDict):
         self.default_rule = None
         super(Grammar, self).__init__()
         if grammar_text:
-            _GrammarVisitor(grammar=self).parse(grammar_text)
+            GrammarVisitor(grammar=self).parse(grammar_text)
 
     def parse(self, string):
         """
@@ -430,7 +430,7 @@ BOOTSTRAP_GRAMMAR = Grammar()
 ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
 
-class _GrammarVisitor(NodeVisitor):
+class _BootstrapGrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
     grammar['_'] = (Epsilon | (Charclass(r'[\s]') + ref('_'))).i
     grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon)
@@ -465,13 +465,22 @@ class _GrammarVisitor(NodeVisitor):
         return reduce(operator.or_, disjuncts)
 
     @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Epsilon.i))
-    def visit_concatenation(self, node, *terms):
+    def visit_concatenation(self, node, first_term, *term_groups):
+        terms = [first_term]
+
+        # TODO: this is really ugly. Is there some way to introspect that
+        # `(ref('_').i + ref('term')` will always have a useless form that should
+        # be automatically unpacked.
+        terms.extend(t for (t, ) in term_groups)
         return reduce(operator.add, terms)
 
-    @grammar.define_rule(ref('literal')) #| ref('charclass'))
+    @grammar.define_rule(ref('literal'))  #| ref('charclass'))
     def visit_term(self, node, item):
         return item
 
     @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
     def visit_literal(self, node):
         return Literal(literal_eval(node.text))
+
+
+GrammarVisitor = _BootstrapGrammarVisitor
