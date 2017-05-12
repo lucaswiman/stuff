@@ -9,3 +9,5 @@ pr-drafts
 .hypothesis
 .tox
 .cache
+.eggs
+nose*.xml
