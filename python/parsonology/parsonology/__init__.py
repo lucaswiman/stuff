@@ -449,9 +449,13 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
-    @grammar.define_rule(ref('literal') | ref('charclass'))
+    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal'))
     def visit_term(self, node, item):
         return item
+
+    @grammar.define_rule(ref('identifier'))
+    def visit_reference(self, node, *_):
+        return Reference(node.text, grammar=self.constructed_grammar)
 
     @grammar.define_rule(((Literal('\]') | Charclass(r'[^\]]')) + ref('charclass_body')) | Epsilon.i)
     def visit_charclass_body(self, node, *_):
@@ -470,10 +474,6 @@ class GrammarVisitor(NodeVisitor):
         # be automatically unpacked.
         terms.extend(t for (t, ) in term_groups)
         return reduce(operator.add, terms)
-
-    @grammar.define_rule(ref('identifier'))
-    def visit_rule_name(self, node, *ignored):
-        return node.text
 
     @grammar.define_rule(
         ref('_') + ref('rule_assignment') + ref('_') + (ref('rule_assignment') | Epsilon.i),
@@ -494,7 +494,12 @@ class GrammarVisitor(NodeVisitor):
 
 def bootstrap(definition):
     def decorator(method):
-        method = GrammarVisitor.grammar.define(definition)
-        setattr(GrammarVisitor, method.name, method)
+        method = GrammarVisitor.grammar.define_rule(definition)(method)
+        setattr(GrammarVisitor, method.__name__, method)
         return method
     return decorator
+
+
+@bootstrap('identifier')
+def visit_rule_name(self, node, *ignored):
+    return node.text
