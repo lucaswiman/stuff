@@ -83,3 +83,6 @@ def test_parsing_a_grammar():
 def test_quantified():
     assert GrammarVisitor.grammar['quantified'].parse('"foo"*')
     assert GrammarVisitor.grammar['term'].parse('"foo"*')
+    Grammar('foo = ("bar" | "baz")*').parse('bar')
+    Grammar('foo = ("bar" | "baz")*').parse('baz')
+    Grammar('foo = ("bar" | "baz")*').parse('barbaz')
