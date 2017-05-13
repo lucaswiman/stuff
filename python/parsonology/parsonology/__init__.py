@@ -449,9 +449,13 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
-    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal'))
+    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized'))
     def visit_term(self, node, item):
         return item
+
+    @grammar.define_rule(L("(").i + ref('rule_definition') + L(")").i)
+    def visit_parenthesized(self, node, rule_definition):
+        return rule_definition
 
     @grammar.define_rule(ref('identifier'))
     def visit_reference(self, node, *_):
@@ -465,7 +469,7 @@ class GrammarVisitor(NodeVisitor):
     def visit_charclass(self, node, *_):
         return Charclass(node.text)
 
-    @grammar.define_rule(ref('term') + ((ref('_') + ref('term')) | Epsilon.i))
+    @grammar.define_rule(ref('term') + ((ref('_') + ref('concatenation')) | Epsilon.i))
     def visit_concatenation(self, node, first_term, *term_groups):
         terms = [first_term]
 
@@ -503,3 +507,8 @@ def bootstrap(definition):
 @bootstrap('identifier')
 def visit_rule_name(self, node, *ignored):
     return node.text
+
+
+@bootstrap('term "." ("ignore" | "i")')
+def visit_ignored_term(self, term, *_):
+    return Ignored(term)
