@@ -157,6 +157,9 @@ class NamedRule(Rule):
     def __repr__(self):
         return 'NamedRule(%r, %r)' % (self.name, self.rule)
 
+    def __str__(self):
+        return self.name
+
     def matches_at_position(self, string, position, stack):
         for match in self.rule.matches_at_position(string, position, stack):
             # Unpack the match for the wrapped rule, and set its rule attribute
@@ -182,6 +185,24 @@ class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children
     def text(self):
         return self.string[self.position:self.position+self.length]
 
+    def __repr__(self):
+
+        if self.children:
+            return '<%s s[%s:%s]=%r %r>' % (
+                self.rule,
+                self.position,
+                self.position + self.length,
+                self.text,
+                [child for child in self.children if not should_ignore(child.rule)],
+            )
+        else:
+            return '<%s s[%s:%s]=%r>' % (
+                self.rule,
+                self.position,
+                self.position + self.length,
+                self.text,
+            )
+
     def __str__(self):
         return self.text
 
@@ -201,6 +222,9 @@ class Literal(Rule):
 
     def __repr__(self):
         return 'Literal(%r)' % self.literal
+
+    def __str__(self):
+        return repr(self.literal)
 
     def matches_at_position(self, string, position, stack=pset()):
         if string.startswith(self.literal, position):
@@ -245,6 +269,9 @@ class Concatenation(Rule):
     def __repr__(self):
         return 'Concatenation(%s)' % ', '.join(map(repr, self))
 
+    def __str__(self):
+        return '(%s)' % ' '.join(str(r) for r in self if r is not Epsilon)
+
     def __add__(self, other):
         if isinstance(other, Concatenation):
             return Concatenation(*(tuple(self) + tuple(other)))
@@ -282,6 +309,9 @@ class Disjunction(tuple, Rule):
     def __repr__(self):
         return '%s%s' % (self.__class__.__name__, super(Disjunction, self).__repr__())
 
+    def __str__(self):
+        return '(%s)' % ' | '.join(str(r) for r in self)
+
     def __add__(self, other):
         return Rule.__add__(self, other)
 
@@ -315,6 +345,9 @@ class Reference(Rule):
 
     def __repr__(self):
         return 'Reference<%r, ignored=%r>' % (self.name, self.ignored)
+
+    def __str__(self):
+        return self.name
 
     def __hash__(self):
         return hash((self.name, self.ignored))
@@ -371,7 +404,7 @@ class Charclass(Rule):
         return 'Charclass(%r)' % self.re.pattern
 
     def __str__(self):
-        return '/%r/' % self.re.pattern
+        return '/%s/' % self.re.pattern
 
     def __hash__(self):
         return hash(self.re)
@@ -433,8 +466,9 @@ ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
-    grammar['_'] = (Epsilon | (Charclass(r'[\s]') + ref('_'))).i
-    grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon)
+    grammar['_'] = (ref('whitespace') | Epsilon).i
+    grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
+    grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon).i
     grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
 
     def __init__(self, grammar=None):
