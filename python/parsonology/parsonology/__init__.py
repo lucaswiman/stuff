@@ -464,6 +464,21 @@ BOOTSTRAP_GRAMMAR = Grammar()
 ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
 
+def star(rule, grammar):
+    identifier_name = 'star_%s' % len(grammar)
+    grammar[identifier_name] = (rule + Reference(identifier_name, grammar)) | Epsilon.i
+    return grammar[identifier_name]
+
+
+def plus(rule, grammar):
+    identifier_name = 'plus_%s' % len(grammar)
+    grammar[identifier_name] = rule + (Reference(identifier_name, grammar) | Epsilon.i)
+    return grammar[identifier_name]
+
+
+def optional(rule, grammar):
+    return rule | Epsilon.i
+
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
     grammar['_'] = (ref('whitespace') | Epsilon).i
@@ -483,7 +498,7 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
-    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized'))
+    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized') | ref('quantified'))
     def visit_term(self, node, item):
         return item
 
@@ -502,6 +517,11 @@ class GrammarVisitor(NodeVisitor):
     @grammar.define_rule(Literal('[') + ref('charclass_body') + Literal(']'))
     def visit_charclass(self, node, *_):
         return Charclass(node.text)
+
+    @grammar.define_rule(ref('term') + ref('_') + Charclass(r'[*+?]'))
+    def visit_quantified(self, term, quantifier):
+        builders = {'*': star, '+': plus, '?': optional}
+        return builders[quantifier](term, self.grammar)
 
     @grammar.define_rule(ref('term') + ((ref('_') + ref('concatenation')) | Epsilon.i))
     def visit_concatenation(self, node, first_term, *term_groups):
