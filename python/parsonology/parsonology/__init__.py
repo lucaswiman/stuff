@@ -498,8 +498,13 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
-    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized') | ref('quantified'))
+    # @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized') | ref('quantified'))
+    @grammar.define_rule(ref('quantified') | ref('unquantified_term'))
     def visit_term(self, node, item):
+        return item
+
+    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized'))
+    def visit_unquantified_term(self, node, item):
         return item
 
     @grammar.define_rule(L("(").i + ref('rule_definition') + L(")").i)
@@ -518,8 +523,8 @@ class GrammarVisitor(NodeVisitor):
     def visit_charclass(self, node, *_):
         return Charclass(node.text)
 
-    @grammar.define_rule(ref('term') + ref('_') + Charclass(r'[*+?]'))
-    def visit_quantified(self, term, quantifier):
+    @grammar.define_rule(ref('unquantified_term') + ref('_') + Charclass(r'[*+?]'))
+    def visit_quantified(self, node, term, quantifier):
         builders = {'*': star, '+': plus, '?': optional}
         return builders[quantifier](term, self.grammar)
 
