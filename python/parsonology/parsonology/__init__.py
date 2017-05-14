@@ -1,10 +1,11 @@
+import itertools
 import operator
 import re
 from ast import literal_eval
 from collections import namedtuple, OrderedDict
 from functools import reduce, partial
 
-import itertools
+import attr
 from pyrsistent import pset
 
 
@@ -240,8 +241,10 @@ class Literal(Rule):
 Epsilon = Literal('')
 
 
+@attr.s(init=False, hash=True, cmp=True, repr=False)
 class Concatenation(Rule):
-    __slots__ = ('head', 'tail', '_hash')
+    head = attr.ib()
+    tail = attr.ib()
 
     def __new__(cls, *args):
         if not args:
@@ -253,17 +256,6 @@ class Concatenation(Rule):
             concat.head = args[0]
             concat.tail = Concatenation(*args[1:])
             return concat
-
-    def __eq__(self, other):
-        return (
-            isinstance(other, Concatenation) and
-            self.head == other.head and
-            self.tail == other.tail)
-
-    def __hash__(self):
-        if not hasattr(self, '_hash'):
-            self._hash = hash((self.__class__, self.head, self.tail))
-        return self._hash
 
     def __iter__(self):
         cur = self
@@ -342,12 +334,11 @@ class Disjunction(tuple, Rule):
             yield match
 
 
+@attr.s(slots=True, hash=False, cmp=False)
 class Reference(Rule):
-    __slots__ = ('name', 'grammar', 'ignored')
-    def __init__(self, name, grammar, ignored=False):
-        self.name = name
-        self.grammar = grammar
-        self.ignored = ignored
+    name = attr.ib()
+    grammar = attr.ib()
+    ignored = attr.ib(default=False)
 
     def __repr__(self):
         return 'Reference<%r, ignored=%r>' % (self.name, self.ignored)
@@ -382,6 +373,13 @@ class Reference(Rule):
             yield Node(string, position, match.length, rule=self, children=(match, ))
 
 
+def validate_charclass(instance, attribute, regex):
+    if not re.match(r'^\[([^\]]|(?<=\\)\])+\]$', regex.pattern):
+        raise ValueError('%r does not look like a charclass' % regex.pattern)
+
+
+
+@attr.s(slots=True, hash=True, cmp=True)
 class Charclass(Rule):
     """
     A regular expression character class.
@@ -399,24 +397,10 @@ class Charclass(Rule):
     TODO: add a subgrammar for regular expressions, and transform it to production rules.
     That would replace this rule once the grammar has been bootstrapped.
     """
-    __slots__ = ('re', )
-
-    def __init__(self, charclass):
-        if not re.match(r'^\[([^\]]|(?<=\\)\])+\]$', charclass):
-            raise ValueError('This does not look like a charclass')
-        self.re = re.compile(charclass)
-
-    def __repr__(self):
-        return 'Charclass(%r)' % self.re.pattern
+    re = attr.ib(convert=re.compile, validator=validate_charclass)
 
     def __str__(self):
         return '/%s/' % self.re.pattern
-
-    def __hash__(self):
-        return hash(self.re)
-
-    def __eq__(self, other):
-        return isinstance(other, Charclass) and self.re.pattern == other.re.pattern
 
     def matches_at_position(self, string, position, stack=pset()):
         match = self.re.match(string, position)
@@ -424,6 +408,7 @@ class Charclass(Rule):
             yield Node(string, position, 1, rule=self)
 
 
+@attr.s(slots=True, hash=True, cmp=True)
 class Ignored(Rule):
     """
     Class for marking that visitors should ignore matches from this rule. It can be
@@ -434,22 +419,10 @@ class Ignored(Rule):
     baz = "foo".ignore "baz"  # The word "foo" will be ignored.
     quux = "foo".i "baz"  # Abbreviation for ignore.
     """
-    __slots__ = ('rule', )
-
-    def __init__(self, rule):
-        self.rule = rule
-
-    def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self.rule)
+    rule = attr.ib()
 
     def __str__(self):
         return '%s.ignore' % self.rule
-
-    def __hash__(self):
-        return hash((Ignored, self.rule))
-
-    def __eq__(self, other):
-        return isinstance(other, Ignored) and self.rule == other.rule
 
     def matches_at_position(self, string, position, stack=pset()):
         for match in self.rule.matches_at_position(string, position, stack):
