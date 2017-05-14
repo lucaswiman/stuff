@@ -487,6 +487,15 @@ def optional(rule, grammar):
 
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
+
+    @grammar.define_rule(
+        ref('_') + ref('rule_assignment') + ref('_') + (ref('rule_assignment') | Epsilon.i),
+        default_rule=True)
+    def visit_rule_assignments(self, node, *names_and_rules):
+        self.constructed_grammar.update(names_and_rules)
+        self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
+        return self.constructed_grammar
+
     grammar['_'] = (ref('whitespace') | Epsilon).i
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
     grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon).i
@@ -528,14 +537,6 @@ class GrammarVisitor(NodeVisitor):
     @grammar.define_rule(ref('term') + ((ref('_') + ref('concatenation')) | Epsilon.i))
     def visit_concatenation(self, node, *terms):
         return reduce(operator.add, terms)
-
-    @grammar.define_rule(
-        ref('_') + ref('rule_assignment') + ref('_') + (ref('rule_assignment') | Epsilon.i),
-        default_rule=True)
-    def visit_rule_assignments(self, node, *names_and_rules):
-        self.constructed_grammar.update(names_and_rules)
-        self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
-        return self.constructed_grammar
 
     @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
     def visit_literal(self, node):
