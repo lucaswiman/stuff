@@ -93,7 +93,13 @@ class NodeVisitor(object):
         return result
 
     def generic_visit(self, node, *children):
-        return children or node.text
+        if len(children) == 1:
+            # Since rules always have a fixed number of children, there's no
+            # point in packing a single child into a tuple.
+            return children[0]
+        else:
+            return children or node.text
+
 
 
 class Rule(object):
@@ -529,13 +535,7 @@ class GrammarVisitor(NodeVisitor):
         return builders[quantifier](term, self.grammar)
 
     @grammar.define_rule(ref('term') + ((ref('_') + ref('concatenation')) | Epsilon.i))
-    def visit_concatenation(self, node, first_term, *term_groups):
-        terms = [first_term]
-
-        # TODO: this is really ugly. Is there some way to introspect that
-        # `(ref('_').i + ref('term')` will always have a useless form that should
-        # be automatically unpacked.
-        terms.extend(t for (t, ) in term_groups)
+    def visit_concatenation(self, node, *terms):
         return reduce(operator.add, terms)
 
     @grammar.define_rule(
