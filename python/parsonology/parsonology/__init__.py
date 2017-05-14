@@ -491,31 +491,22 @@ class GrammarVisitor(NodeVisitor):
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
     grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon).i
     grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
+    grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
+    grammar['term'] = ref('quantified') | ref('unquantified_term')
+
+    # Note that we want disjunction to have lower precedence than concatenation.
+    grammar['rule_definition'] = ref('disjunction')
+
+    grammar['parenthesized'] = L("(").i + ref('rule_definition') + L(")").i
+    grammar['rule_assignment'] = ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition')
+    grammar['ignored_term'] = ref('term') + (L('.') + (L('ignore') | L('i'))).i
 
     def __init__(self, grammar=None):
         self.constructed_grammar = Grammar() if grammar is None else grammar
 
-    # We want disjunction to have lower precedence than concatenation.
-    @grammar.define_rule(ref('disjunction'))
-    def visit_rule_definition(self, node, rule):
-        return rule
-
     @grammar.define_rule(ref('concatenation') + ((ref('_') + L("|").i + ref('_') + ref('disjunction')) | Epsilon.i))
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
-
-    # @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized') | ref('quantified'))
-    @grammar.define_rule(ref('quantified') | ref('unquantified_term'))
-    def visit_term(self, node, item):
-        return item
-
-    @grammar.define_rule(ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized'))
-    def visit_unquantified_term(self, node, item):
-        return item
-
-    @grammar.define_rule(L("(").i + ref('rule_definition') + L(")").i)
-    def visit_parenthesized(self, node, rule_definition):
-        return rule_definition
 
     @grammar.define_rule(ref('identifier'))
     def visit_reference(self, node, *_):
@@ -546,28 +537,10 @@ class GrammarVisitor(NodeVisitor):
         self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
         return self.constructed_grammar
 
-    @grammar.define_rule(ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition'))
-    def visit_rule_assignment(self, node, name, rule):
-        return name, rule
-
     @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
     def visit_literal(self, node):
         return Literal(literal_eval(node.text))
 
-
-def bootstrap(definition):
-    def decorator(method):
-        method = GrammarVisitor.grammar.define_rule(definition)(method)
-        setattr(GrammarVisitor, method.__name__, method)
-        return method
-    return decorator
-
-
-@bootstrap('identifier')
-def visit_rule_name(self, node, *ignored):
-    return node.text
-
-
-@bootstrap('term "." ("ignore" | "i")')
-def visit_ignored_term(self, term, *_):
-    return Ignored(term)
+    @grammar.define_rule(ref('identifier'))
+    def visit_rule_name(self, node, *ignored):
+        return node.text
