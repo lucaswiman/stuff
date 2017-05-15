@@ -464,13 +464,13 @@ class GrammarVisitor(NodeVisitor):
 
     grammar['_'] = (ref('whitespace') | Epsilon).i
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
-    grammar['identifier'] = Charclass(r'[\w]') + (ref('identifier') | Epsilon).i
     grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
 
     # Note that we want disjunction to have lower precedence than concatenation.
     grammar['rule_definition'] = ref('disjunction')
+    grammar['rule_name'] = ref('identifier')
 
     grammar['parenthesized'] = L("(").i + ref('rule_definition') + L(")").i
     grammar['rule_assignment'] = ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition')
@@ -483,9 +483,13 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, disjuncts)
 
+    @grammar.define_rule(Charclass(r'[\w]') + (ref('identifier') | Epsilon).i)
+    def visit_identifier(self, node, *_):
+        return node.text
+
     @grammar.define_rule(ref('identifier'))
-    def visit_reference(self, node, *_):
-        return Reference(node.text, grammar=self.constructed_grammar)
+    def visit_reference(self, node, identifier):
+        return Reference(identifier, grammar=self.constructed_grammar)
 
     @grammar.define_rule(((Literal('\]') | Charclass(r'[^\]]')) + ref('charclass_body')) | Epsilon.i)
     def visit_charclass_body(self, node, *_):
@@ -507,7 +511,3 @@ class GrammarVisitor(NodeVisitor):
     @grammar.define_rule(L('"').i + ref('escaped_quote_body').i + L('"').i)
     def visit_literal(self, node):
         return Literal(literal_eval(node.text))
-
-    @grammar.define_rule(ref('identifier'))
-    def visit_rule_name(self, node, *ignored):
-        return node.text
