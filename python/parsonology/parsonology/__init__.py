@@ -462,8 +462,10 @@ class GrammarVisitor(NodeVisitor):
         self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
         return self.constructed_grammar
 
-    grammar['_'] = (ref('whitespace') | Epsilon).i
+    grammar['_'] = ((ref('whitespace') + (ref('comment') + ref('_') | Epsilon)) | Epsilon).i
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
+    grammar['comment'] = Literal('#') + ref('EOL')
+    grammar['EOL'] = star(Charclass(r'[^\n]'), grammar) + Literal('\n')
     grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
