@@ -89,6 +89,7 @@ def test_parsing_some_grammars():
         baz = "ba" zz
         zz = "zz" 
     ''').parse('barbazz')
+    assert Grammar('foo = baz #comment\nbaz="baz"').parse('baz')
 
 def test_quantified():
     assert GrammarVisitor.grammar['quantified'].parse('"foo"*')
