@@ -64,7 +64,7 @@ def test_ignoring():
     assert should_ignore((L('b') + Ignored(Epsilon)).parse('b').children[1].rule)
 
 
-def test_parsing_a_grammar():
+def test_parsing_some_grammars():
     grammar = Grammar('foo = "bar"')
     parsed = grammar.parse('bar')
 
@@ -78,7 +78,17 @@ def test_parsing_a_grammar():
         grammar.parse('barbaz')
 
     assert Grammar('foo = "bar" "baz"').parse('barbaz')
+    assert Grammar('''
+        foo = "bar" baz
+        baz = "baz"
+    ''').parse('barbaz')
 
+    assert Grammar('''
+        foo = "bar" baz  # comment
+        # comment
+        baz = "ba" zz
+        zz = "zz" 
+    ''').parse('barbazz')
 
 def test_quantified():
     assert GrammarVisitor.grammar['quantified'].parse('"foo"*')

@@ -454,13 +454,16 @@ def optional(rule, grammar):
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
 
-    @grammar.define_rule(
-        ref('_') + ref('rule_assignment') + ref('_') + (ref('rule_assignment') | Epsilon.i),
-        default_rule=True)
-    def visit_rule_assignments(self, node, *names_and_rules):
+    @grammar.define_rule(ref('rule_assignments'), default_rule=True)
+    def visit_rules(self, node, names_and_rules):
         self.constructed_grammar.update(names_and_rules)
         self.constructed_grammar.default_rule = self.constructed_grammar[names_and_rules[0][0]]
         return self.constructed_grammar
+
+    @grammar.define_rule(
+        ref('_') + ref('rule_assignment') + (ref('whitespace').i + ref('rule_assignments') | ref('_')))
+    def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
+        return (rule_assignment, ) + names_and_rules
 
     grammar['_'] = ((ref('whitespace') + (ref('comment') + ref('_') | Epsilon)) | Epsilon).i
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
