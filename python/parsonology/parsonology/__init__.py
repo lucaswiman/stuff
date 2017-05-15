@@ -415,7 +415,7 @@ class Ignored(Rule):
     rule = attr.ib()
 
     def __str__(self):
-        return '%s.ignore' % self.rule
+        return '%s.ignore' % (self.rule, )
 
     def matches_at_position(self, string, position, stack=pset()):
         for match in self.rule.matches_at_position(string, position, stack):
