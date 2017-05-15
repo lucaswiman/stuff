@@ -214,7 +214,7 @@ class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children
         return self.text
 
 
-@attr.s(init=False, hash=True, cmp=True)
+@attr.s(init=False, hash=True, cmp=True, str=False)
 class Literal(Rule):
     literal = attr.ib()
     length = attr.ib()
@@ -234,7 +234,7 @@ class Literal(Rule):
 Epsilon = Literal('')
 
 
-@attr.s(init=False, hash=True, cmp=True, repr=False)
+@attr.s(init=False, hash=True, cmp=True, repr=False, str=False)
 class Concatenation(Rule):
     head = attr.ib()
     tail = attr.ib()
@@ -327,7 +327,7 @@ class Disjunction(tuple, Rule):
             yield match
 
 
-@attr.s(slots=True, hash=False, cmp=False)
+@attr.s(slots=True, hash=False, cmp=False, repr=False, str=False)
 class Reference(Rule):
     name = attr.ib()
     grammar = attr.ib()
@@ -372,7 +372,7 @@ def validate_charclass(instance, attribute, regex):
 
 
 
-@attr.s(slots=True, hash=True, cmp=True)
+@attr.s(slots=True, hash=True, cmp=True, str=False)
 class Charclass(Rule):
     """
     A regular expression character class.
@@ -401,7 +401,7 @@ class Charclass(Rule):
             yield Node(string, position, 1, rule=self)
 
 
-@attr.s(slots=True, hash=True, cmp=True)
+@attr.s(slots=True, hash=True, cmp=True, str=False, repr=False)
 class Ignored(Rule):
     """
     Class for marking that visitors should ignore matches from this rule. It can be
@@ -413,6 +413,9 @@ class Ignored(Rule):
     quux = "foo".i "baz"  # Abbreviation for ignore.
     """
     rule = attr.ib()
+
+    def __repr__(self):
+        return '%r.i' % (self.rule, )
 
     def __str__(self):
         return '%s.ignore' % (self.rule, )

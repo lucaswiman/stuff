@@ -89,7 +89,17 @@ def test_parsing_some_grammars():
         baz = "ba" zz
         zz = "zz" 
     ''').parse('barbazz')
-    assert Grammar('foo = baz #comment\nbaz="baz"').parse('baz')
+    assert Grammar('foo = "bar" baz  # comment\nbaz = "ba" zz\nzz = "zz"').parse('barbazz')
+
+
+@pytest.mark.xfail(reason='FIXME')
+def test_parsing_some_grammars_with_wierd_comment_whitespace():
+    assert Grammar('foo = "bar" baz#comment\nbaz = "ba" zz\nzz = "zz"').parse('barbazz')
+    assert Grammar('foo = baz#comment\nbaz = "ba" zz\nzz = "zz"').parse('bazz')
+    assert Grammar('foo = baz#comment\nbaz = "baz"').parse('baz')
+    assert Grammar('foo = baz #comment\nbaz = "baz"').parse('baz')
+    assert Grammar('foo = baz #comment\n baz="baz"').parse('baz')
+
 
 def test_quantified():
     assert GrammarVisitor.grammar['quantified'].parse('"foo"*')
