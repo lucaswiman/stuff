@@ -214,21 +214,14 @@ class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children
         return self.text
 
 
+@attr.s(init=False, hash=True, cmp=True)
 class Literal(Rule):
-    __slots__ = ('literal', 'length')
+    literal = attr.ib()
+    length = attr.ib()
 
     def __init__(self, literal):
         self.literal = literal
         self.length = len(literal)
-
-    def __hash__(self):
-        return hash(self.literal)
-
-    def __eq__(self, other):
-        return isinstance(other, Literal) and other.literal == self.literal
-
-    def __repr__(self):
-        return 'Literal(%r)' % self.literal
 
     def __str__(self):
         return repr(self.literal)
