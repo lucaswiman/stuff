@@ -165,7 +165,7 @@ class NamedRule(Rule):
         return 'NamedRule(%r, %r)' % (self.name, self.rule)
 
     def __str__(self):
-        return self.name
+        return '{self.name} = {self.rule}'.format(self=self)
 
     def matches_at_position(self, string, position, stack):
         for match in self.rule.matches_at_position(string, position, stack):
@@ -472,7 +472,7 @@ class GrammarVisitor(NodeVisitor):
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = star(Charclass(r'[^\n]'), grammar) + Literal('\n')
-    grammar['escaped_quote_body'] = (Charclass(r'[^"]') | L('\\"')) + (ref('escaped_quote_body') | Epsilon)
+    grammar['escaped_quote_body'] = ((Charclass(r'[^"]') | L('\\"')) + ref('escaped_quote_body')) | Epsilon
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
 

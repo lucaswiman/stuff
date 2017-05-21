@@ -5,7 +5,7 @@ install_requires = ['six', 'toolz', 'pyrsistent']
 if sys.version_info < (3, 5):
     install_requires.append('typing')
 
-setup(name='simple-parser',
+setup(name='parsonology',
       version='0.0.0',
       description='A dumb parser',
       url='http://github.com/lucaswiman/simple-parser',
