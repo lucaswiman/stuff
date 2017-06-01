@@ -136,13 +136,6 @@ Developments within the Python core language have made pattern matching more app
 * The `attrs`_ library is becoming increasingly popular, yielding a good, usable template API to add algebraic datatypes to. In particular, any class using ``attr.s`` which does not transform its arguments could have a unification method added to it fairly easily. (For example, see `the unification logic`_ for ``__slots__`` objects in the unification library.)
 * The introduction of the `typing`_ module and the `mypy`_ type checker afford much of the type logic required to make pattern matching genuinely useful.
 
-Is this just a switch statement?
---------------------------------
-
-Pattern matching is much more capable than a switch statement, since it allows structural unpacking inside the case-matching logic. This makes code much more concise, especially for code which processes trees or recursive expressions.
-
-However, the main benefit of pattern matching and algebraic data types are that they allow you to encode more business logic into the structure of your types. With appropriate type checking, you can verify that case analysis is exhaustive, and make conditional logic much clearer.
-
 Use cases
 ---------
 
