@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: parsonology
+Version: 0.0.0
+Summary: A dumb parser
+Home-page: http://github.com/lucaswiman/simple-parser
+Author: Lucas Wiman   
+Author-email: lucas.wiman@gmail.com
+License: Apache 2.0
+Description: foo
+Platform: UNKNOWN
