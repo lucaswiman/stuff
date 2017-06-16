@@ -938,11 +938,13 @@ class MigrationAutodetector(object):
             # We run the old version through the field renames to account for those
             old_value = old_model_state.options.get(option_name) or set()
             if old_value:
+                def build(unique):
+                    return tuple(
+                                self.renamed_fields.get((app_label, model_name, n), n)
+                                for n in unique
+                            )
                 old_value = {
-                    tuple(
-                        self.renamed_fields.get((app_label, model_name, n), n)
-                        for n in unique
-                    )
+                    build(unique)
                     for unique in old_value
                 }
 
