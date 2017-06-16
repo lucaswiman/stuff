@@ -1,3 +1,6 @@
 [submodule "html/pdfjs/pdf.js"]
 	path = html/pdfjs/pdf.js
 	url = git://github.com/mozilla/pdf.js.git
+[submodule "python/cy-django/upstream_django"]
+	path = python/cy-django/upstream_django
+	url = https://github.com/django/django.git
