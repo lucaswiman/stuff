@@ -4,7 +4,7 @@ import warnings
 from collections import deque
 from functools import total_ordering
 
-from cy_migrations.upstream.state import ProjectState
+from cy_migrations.upstream.state_ import ProjectState
 from django.utils.datastructures import OrderedSet
 from django.utils.encoding import python_2_unicode_compatible
 

@@ -11,7 +11,7 @@ from cy_migrations.upstream.questioner import (
     InteractiveMigrationQuestioner, MigrationQuestioner,
     NonInteractiveMigrationQuestioner,
 )
-from cy_migrations.upstream.state import ProjectState
+from cy_migrations.upstream.state_ import ProjectState
 from cy_migrations.upstream.writer import MigrationWriter
 from django.utils.six import iteritems
 from django.utils.six.moves import zip

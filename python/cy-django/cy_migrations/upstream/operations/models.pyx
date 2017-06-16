@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from cy_migrations.upstream.operations.base import Operation
-from cy_migrations.upstream.state import ModelState
+from cy_migrations.upstream.state_ import ModelState
 from django.db.models.options import normalize_together
 from django.utils import six
 from django.utils.functional import cached_property

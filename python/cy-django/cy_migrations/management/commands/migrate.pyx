@@ -16,7 +16,7 @@ from django.db import DEFAULT_DB_ALIAS, connections, router, transaction
 from cy_migrations.upstream.autodetector import MigrationAutodetector
 from cy_migrations.upstream.executor import MigrationExecutor
 from cy_migrations.upstream.loader import AmbiguityError
-from cy_migrations.upstream.state import ProjectState
+from cy_migrations.upstream.state_ import ProjectState
 from django.utils.deprecation import RemovedInDjango110Warning
 from django.utils.module_loading import module_has_submodule
 
