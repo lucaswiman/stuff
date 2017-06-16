@@ -5,14 +5,14 @@ from itertools import takewhile
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.db.migrations import Migration
-from django.db.migrations.autodetector import MigrationAutodetector
-from django.db.migrations.loader import MigrationLoader
-from django.db.migrations.questioner import (
+from cy_migrations.upstream.autodetector import MigrationAutodetector
+from cy_migrations.upstream.loader import MigrationLoader
+from cy_migrations.upstream.questioner import (
     InteractiveMigrationQuestioner, MigrationQuestioner,
     NonInteractiveMigrationQuestioner,
 )
-from django.db.migrations.state import ProjectState
-from django.db.migrations.writer import MigrationWriter
+from cy_migrations.upstream.state import ProjectState
+from cy_migrations.upstream.writer import MigrationWriter
 from django.utils.six import iteritems
 from django.utils.six.moves import zip
 

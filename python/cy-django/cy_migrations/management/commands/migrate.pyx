@@ -13,10 +13,10 @@ from django.core.management.sql import (
     emit_post_migrate_signal, emit_pre_migrate_signal,
 )
 from django.db import DEFAULT_DB_ALIAS, connections, router, transaction
-from django.db.migrations.autodetector import MigrationAutodetector
-from django.db.migrations.executor import MigrationExecutor
-from django.db.migrations.loader import AmbiguityError
-from django.db.migrations.state import ProjectState
+from cy_migrations.upstream.autodetector import MigrationAutodetector
+from cy_migrations.upstream.executor import MigrationExecutor
+from cy_migrations.upstream.loader import AmbiguityError
+from cy_migrations.upstream.state import ProjectState
 from django.utils.deprecation import RemovedInDjango110Warning
 from django.utils.module_loading import module_has_submodule
 

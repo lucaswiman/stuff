@@ -11,11 +11,11 @@ class Migration(object):
     """
     The base class for all migrations.
 
-    Migration files will import this from django.db.migrations.Migration
+    Migration files will import this from cy_migrations.upstream.Migration
     and subclass it as a class called Migration. It will have one or more
     of the following attributes:
 
-     - operations: A list of Operation instances, probably from django.db.migrations.operations
+     - operations: A list of Operation instances, probably from cy_migrations.upstream.operations
      - dependencies: A list of tuples of (app_path, migration_name)
      - run_before: A list of tuples of (app_path, migration_name)
      - replaces: A list of migration_names

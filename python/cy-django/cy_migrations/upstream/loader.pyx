@@ -6,8 +6,8 @@ from importlib import import_module
 
 from django.apps import apps
 from django.conf import settings
-from django.db.migrations.graph import MigrationGraph
-from django.db.migrations.recorder import MigrationRecorder
+from cy_migrations.upstream.graph import MigrationGraph
+from cy_migrations.upstream.recorder import MigrationRecorder
 from django.utils import six
 
 from .exceptions import AmbiguityError, BadMigrationError, NodeNotFoundError
@@ -25,7 +25,7 @@ class MigrationLoader(object):
 
     On initialization, this class will scan those directories, and open and
     read the python files, looking for a class called Migration, which should
-    inherit from django.db.migrations.Migration. See
+    inherit from cy_migrations.upstream.Migration. See
     django.db.migrations.migration for what that looks like.
 
     Some migrations will be marked as "replacing" another set of migrations.
