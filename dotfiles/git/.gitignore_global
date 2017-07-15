@@ -11,3 +11,4 @@ pr-drafts
 .cache
 .eggs
 nose*.xml
+.mypy_cache
