@@ -24,6 +24,21 @@ def process_lines(lines):
     first, last = import_lines[0][0], import_lines[-1][0]
     for line in lines[first:last+1]:
         if not get_import_object_from_line(line) and not line.startswith('#') and not re.match(r'\s+', line):
+            # Note that this does not handle cases like the following:
+            #
+            # from __future__ import unicode_literals
+            # """
+            # We can't bust heads like we used to, but we have our ways. One
+            # trick is to tell 'em stories that don't go anywhere - like the
+            # time I caught the ferry over to Shelbyville. I needed a new heel
+            # for my shoe, so, I decided to go to Morganville, which is what
+            # they called Shelbyville in those days. So I tied an onion to my
+            # belt, which was the style at the time. Now, to take the ferry
+            # cost a nickel, and in those days, nickels had pictures of
+            # bumblebees on 'em. Give me five bees for a quarter, you'd say.
+            # """
+            # import re
+            # import ...
             raise NonContiguousImportError('Import blocks not contiguous')
     new_lines = bubblesort_lines(lines[first:last+1])
     lines[first:last + 1] = new_lines
