@@ -4,8 +4,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Facts
-observed_deleterious_count(mother, 0).
-observed_deleterious_count(father, 0).
+observed_deleterious_count(mother, 2).
+observed_deleterious_count(father, 1).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 deleterious(mother, chr_X1) :- observed_deleterious_count(mother, Count), Count >= 1.
@@ -26,4 +26,4 @@ passed_deleterious(mother) :- deleterious(mother, chr_X1), transmitted(mother, c
 
 query(passed_deleterious(father)).
 query(passed_deleterious(mother)).
-query(affected).
+query(affected).  % Should be 100%, not 0.375
