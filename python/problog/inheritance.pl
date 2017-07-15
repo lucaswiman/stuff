@@ -5,10 +5,10 @@ observed_deleterious_count(father, 0).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % (detection_rate = 0.9)
-0.0::deleterious(father, chr_Y).
-1.0-0.9::deleterious(father, chr_X).
-1.0-0.9::deleterious(mother, chr_X1).
-1.0-0.9::deleterious(mother, chr_X2).
+% (prevalence = 2.5e-05)
+2.5e-05::deleterious(father, chr_X).
+2.5e-05::deleterious(mother, chr_X1).
+2.5e-05::deleterious(mother, chr_X2).
 
 0.5::transmitted(father, chr_X); 0.5::transmitted(father, chr_Y).
 0.5::transmitted(mother, chr_X1); 0.5::transmitted(mother, chr_X2).
