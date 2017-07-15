@@ -14,7 +14,7 @@ enter ~/counsyl
   export GIT_AUTHOR_NAME='Lucas Wiman'
   export GIT_AUTHOR_EMAIL='lucaswiman@counsyl.com'
   export GIT_COMMITTER_NAME='Lucas Wiman'
-  export GIT_AUTHOR_EMAIL='lucaswiman@counsyl.com'
+  export GIT_COMMITTER_EMAIL='lucaswiman@counsyl.com'
   export PIP_INDEX_URL='https://pypi.counsyl.com/counsyl/prod/'
 
 leave ~/counsyl

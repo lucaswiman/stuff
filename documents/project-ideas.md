@@ -57,3 +57,8 @@ matrix([[   0.,  235.,    0.,    8.,    0.,    0.,    0.,    0.],
 
 ```
 <img src="./foo_4442360720.png" width="40%" />
+
+
+### import formatter command for flake8-import-order
+
+This has several import styles, but no way to automatically put imports in the right place. https://github.com/PyCQA/flake8-import-order
