@@ -42,4 +42,4 @@ query(deleterious(mother, chr_X2)).
 query(transmitted(mother, chr_X1)).
 query(transmitted(mother, chr_X1)).
 query(transmitted(mother, chr_X2)).
-query(affected).  % Should be 100%, not 0.375
+query(affected).
