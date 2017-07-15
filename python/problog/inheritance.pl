@@ -18,10 +18,9 @@ affected :-
   (passed_deleterious(mother), transmitted(father, chr_Y));
   (passed_deleterious(mother), passed_deleterious(father))
 .
-passed_deleterious(father) :- deleterious(father, chr_X), transmitted(father, chr_X).
-passed_deleterious(mother) :-
-  (deleterious(mother, chr_X1), transmitted(mother, chr_X1));
-  (deleterious(mother, chr_X2), transmitted(mother, chr_X2)).
+
+passed_deleterious(Parent) :-
+  (deleterious(Parent, X), transmitted(Parent, X)).
 
 transmitted(father, chr_X) :- \+transmitted(father, chr_Y).
 transmitted(mother, chr_X1) :- \+transmitted(mother, chr_X2).
