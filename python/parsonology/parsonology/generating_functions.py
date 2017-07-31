@@ -1,12 +1,29 @@
+from functools import reduce
+from operator import mul
+
 from sympy import symbols, Eq
 
-from parsonology import NamedRule
+from parsonology import NamedRule, Reference, Disjunction, Concatenation, Ignored, Literal, Charclass
+
+x = symbols('x')
 
 
 def get_rhs(rule):
-    if isinstance(rule, NamedRule):
-        return get_rhs(rule.referent)
-    from pytest import set_trace; set_trace()
+    print(rule)
+    if isinstance(rule, Reference):
+        return symbols(rule.name)
+    elif isinstance(rule, NamedRule):
+        return get_rhs(rule.rule)
+    elif isinstance(rule, Disjunction):
+        return sum(map(get_rhs, rule))
+    elif isinstance(rule, Concatenation):
+        return reduce(mul, map(get_rhs, rule))
+    elif isinstance(rule, Literal):
+        return x ** rule.length
+    elif isinstance(rule, Charclass):
+        return len(rule.charcodes) * x
+    else:
+        raise NotImplementedError(type(rule))
 
 
 def get_system_of_equations(grammar):
@@ -18,7 +35,6 @@ def get_system_of_equations(grammar):
         g(A | B) = g(A) + g(B) 
         g(A B) = G(A) * G(B)
     """
-    x = symbols('x')
     if 'x' in grammar:
         raise ValueError('Kinda lame, but the variable "x" is hard-coded. Choose a different name in your grammar.')
     equations = []
@@ -27,4 +43,5 @@ def get_system_of_equations(grammar):
         symbol = symbols(name)
         variables.append(symbol)
         equations.append(Eq(symbol, get_rhs(rule)))
+    from pytest import set_trace; set_trace()
     raise NotImplementedError

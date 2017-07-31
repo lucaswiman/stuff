@@ -1,9 +1,11 @@
 import itertools
 import operator
-import re
+import string
+from re import compile as re_compile, match as re_match
 from ast import literal_eval
 from collections import namedtuple, OrderedDict
 from functools import reduce, partial
+from typing import Set
 
 import attr
 from pyrsistent import pset
@@ -366,13 +368,13 @@ class Reference(Rule):
             yield Node(string, position, match.length, rule=self, children=(match, ))
 
 
-def validate_charclass(instance, attribute, regex):
-    if not re.match(r'^\[([^\]]|(?<=\\)\])+\]$', regex.pattern):
-        raise ValueError('%r does not look like a charclass' % regex.pattern)
+def validate_charclass(regex):
+    if not re_match(r'^\[([^\]]|(?<=\\)\])+\]$', regex):
+        raise ValueError('%r does not look like a charclass' % regex)
 
 
 
-@attr.s(slots=True, hash=True, cmp=True, str=False)
+@attr.s(slots=True, hash=True, cmp=True, str=False, init=False)
 class Charclass(Rule):
     """
     A regular expression character class.
@@ -390,14 +392,20 @@ class Charclass(Rule):
     TODO: add a subgrammar for regular expressions, and transform it to production rules.
     That would replace this rule once the grammar has been bootstrapped.
     """
-    re = attr.ib(convert=re.compile, validator=validate_charclass)
+    re : str = attr.ib()
+    charcodes : Set[int] = attr.ib()
+    def __init__(self, re):
+        import sre_parse, sre_constants
+        validate_charclass(re)
+        self.re = re_compile(re)
+        self.charcodes = frozenset(i for i in range(0, 128) if self.re.match(chr(i)))
 
     def __str__(self):
         return '/%s/' % self.re.pattern
 
     def matches_at_position(self, string, position, stack=pset()):
-        match = self.re.match(string, position)
-        if match is not None:
+        char = string[position:position + 1]
+        if char and ord(char) in self.charcodes:
             yield Node(string, position, 1, rule=self)
 
 
