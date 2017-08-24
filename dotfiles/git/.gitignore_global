@@ -12,3 +12,4 @@ pr-drafts
 .eggs
 nose*.xml
 .mypy_cache
+.ipynb_checkpoints
