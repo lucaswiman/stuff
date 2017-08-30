@@ -1,0 +1,6 @@
+ipython[all]==6.1.0
+numpy==1.13.1
+scipy==0.19.1
+sympy==1.1.1
+jupyter==1.0.0
+rise==5.0.0
