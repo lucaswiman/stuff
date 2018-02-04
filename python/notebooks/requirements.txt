@@ -1,0 +1,6 @@
+jupyter
+sympy
+numpy
+scipy
+matplotlib
+tabulate
