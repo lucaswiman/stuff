@@ -3,4 +3,4 @@ sympy
 numpy
 scipy
 matplotlib
-tabulate
+bitsets  # https://bitsets.readthedocs.io/en/stable/
