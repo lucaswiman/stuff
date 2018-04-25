@@ -4,3 +4,6 @@
 [submodule "python/cy-django/upstream_django"]
 	path = python/cy-django/upstream_django
 	url = https://github.com/django/django.git
+[submodule "documents/20180424--sympy-pyninsula-talk/reveal.js"]
+	path = documents/20180424--sympy-pyninsula-talk/reveal.js
+	url = https://github.com/hakimel/reveal.js.git
