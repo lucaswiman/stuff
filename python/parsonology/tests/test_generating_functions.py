@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+from sympy import Eq, symbols
+
 from parsonology import Grammar
 from parsonology.generating_functions import get_system_of_equations
 
@@ -14,4 +16,10 @@ SHALLIT_EXAMPLE = Grammar(r'''
 
 
 def test_the_thing():
-    get_system_of_equations(SHALLIT_EXAMPLE)
+    system = get_system_of_equations(SHALLIT_EXAMPLE)
+    x, S, M, U = symbols('x S M U')
+    assert system == [
+        Eq(S, M + U),
+        Eq(M, M ** 2 * x ** 2 + 1),
+        Eq(U, S * x + M * U * x ** 2),
+    ]

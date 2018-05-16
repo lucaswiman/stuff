@@ -9,7 +9,6 @@ x = symbols('x')
 
 
 def get_rhs(rule):
-    print(rule)
     if isinstance(rule, Reference):
         return symbols(rule.name)
     elif isinstance(rule, NamedRule):
@@ -43,5 +42,4 @@ def get_system_of_equations(grammar):
         symbol = symbols(name)
         variables.append(symbol)
         equations.append(Eq(symbol, get_rhs(rule)))
-    from pytest import set_trace; set_trace()
-    raise NotImplementedError
+    return equations
