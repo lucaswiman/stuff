@@ -13,3 +13,4 @@ pr-drafts
 nose*.xml
 .mypy_cache
 .ipynb_checkpoints
+.tm_properties
