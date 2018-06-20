@@ -1,0 +1,35 @@
+<html>
+  <body>
+    <style type="text/css">
+      body {
+        background-color: grey;
+      }
+      ul.stretch {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-around;
+        list-style-type: none;
+      }
+      ul.stretch li {
+        display: inline-block;
+        width: 250px;
+        background-color: black;
+        border: 1px solid green;
+      }
+      .bordered {
+        border: 1px solid white;
+        background-color: red;
+      }
+    </style>
+    <ul class="stretch">
+      <li><div class="bordered" style="width:100%; height: 200px;"></li>
+      <li><div class="bordered" style="width:100%; height: 40px;"></li>
+      <li><div class="bordered" style="width:100%; height: 150px;"></li>
+      <li><div class="bordered" style="width:100%; height: 50px;"></li>
+      <li><div class="bordered" style="width:100%; height: 500px;"></li>
+      <li><div class="bordered" style="width:100%; height: 300px;"></li>
+      <li><div class="bordered" style="width:100%; height: 100px;"></li>
+      <li><div class="bordered" style="width:100%; height: 1500px;"></li>
+    </ul>
+  </bod>
+</html>
