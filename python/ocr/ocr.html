@@ -25,8 +25,8 @@
                         };
                         pdf.getPage(pageNumber).then(
                             function(page) {
-                                var canvas = document.getElementById('pdf-canvas');            
-                                var scale = canvas.scrollHeight / page.getViewport(1.0).width;
+                                var canvas = document.getElementById('pdf-canvas');
+                                var scale = canvas.scrollHeight * window.devicePixelRatio / page.getViewport(1.0).width;
                                 var viewport = page.getViewport(scale);
 
                                 //
@@ -56,8 +56,6 @@
         xhr.responseType = 'blob';
         xhr.onload = function(e) {
             pdfBlob = xhr.response;
-            console.log(this.status);
-            alert('foo');
             processPDFBlob(pdfBlob);
         };
         xhr.send();
