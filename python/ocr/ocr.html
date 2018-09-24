@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8"/>
+        <script src='https://cdn.rawgit.com/naptha/tesseract.js/1.0.10/dist/tesseract.js'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script>
+        <style type="text/css">
+            #pdf-canvas {
+                width: 50vw;
+                height: 65wv;  /* 8.5x11" */
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="pdf-canvas"></canvas>
+    </body>
+    <footer>
+        <script>
+            function processPDFBlob(blob) {
+                var dataURI = URL.createObjectURL(blob);
+                pdfjsLib.getDocument(dataURI).then(function(pdf) {
+                    var renderPage = function(pageNumber) {
+                        if (typeof(pageNumber) === 'undefined') {
+                        
+                        };
+                        pdf.getPage(pageNumber).then(
+                            function(page) {
+                                var canvas = document.getElementById('pdf-canvas');            
+                                var scale = canvas.scrollHeight / page.getViewport(1.0).width;
+                                var viewport = page.getViewport(scale);
+
+                                //
+                                // Prepare canvas using PDF page dimensions
+                                //
+                                var context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+
+                                //
+                                // Render PDF page into canvas context
+                                //
+                                var renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                                };
+                                page.render(renderContext);
+                                canvas.dataset.currentPage = pageNumber;
+                            }
+                    );
+                };
+                renderPage(1);
+            });
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/example.pdf', true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+            pdfBlob = xhr.response;
+            console.log(this.status);
+            alert('foo');
+            processPDFBlob(pdfBlob);
+        };
+        xhr.send();
+    </script>
+    </footer>
+</html>
