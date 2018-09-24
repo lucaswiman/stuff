@@ -9,7 +9,7 @@
                 width: 50vw;
                 height: 65wv;  /* 8.5x11" */
             }
-            body {
+            #content-area {
                 display: flex;
             }
             #document-text {
@@ -19,14 +19,20 @@
         </style>
     </head>
     <body>
-        <canvas id="pdf-canvas"></canvas>
-        <div id="document-text"></div>
+        <div id="status"></div>
+        <div id="content-area">
+            <canvas id="pdf-canvas"></canvas>
+            <div id="document-text"></div>
+        </div>
     </body>
     <footer>
         <script>
             function renderRecogizedText(result) {
                 document.getElementById('document-text').innerHTML = result.html;
                 foo = result;
+            }
+            function updateRecognitionStatus(message) {
+                document.getElementById('status').textContent = `${message.status}: ${Math.round(100 * message.progress)}%`;
             }
             function processPDFBlob(blob) {
                 var dataURI = URL.createObjectURL(blob);
@@ -59,10 +65,11 @@
                                 task.promise.then(function() {
                                     canvas.toBlob(function(blob){
                                         Tesseract.recognize(blob)
-                                        .progress(message => console.log(message))
+                                        .progress(updateRecognitionStatus)
                                         .catch(err => console.error(err))
                                         .then(result => renderRecogizedText(result))
-                                        .finally(resultOrError => console.log(resultOrError));
+                                        .finally(resultOrError => console.log(resultOrError))
+                                        .finally(resultOrError => document.getElementById('status').textContent = '');
                                     });
                                 });
                                 canvas.dataset.currentPage = pageNumber;
