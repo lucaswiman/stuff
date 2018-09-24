@@ -9,13 +9,25 @@
                 width: 50vw;
                 height: 65wv;  /* 8.5x11" */
             }
+            body {
+                display: flex;
+            }
+            #document-text {
+                flex: 1;
+                height: 65wv;
+            }
         </style>
     </head>
     <body>
         <canvas id="pdf-canvas"></canvas>
+        <div id="document-text"></div>
     </body>
     <footer>
         <script>
+            function renderRecogizedText(result) {
+                document.getElementById('document-text').innerHTML = result.html;
+                foo = result;
+            }
             function processPDFBlob(blob) {
                 var dataURI = URL.createObjectURL(blob);
                 pdfjsLib.getDocument(dataURI).then(function(pdf) {
@@ -40,10 +52,19 @@
                                 // Render PDF page into canvas context
                                 //
                                 var renderContext = {
-                                canvasContext: context,
-                                viewport: viewport
+                                    canvasContext: context,
+                                    viewport: viewport
                                 };
-                                page.render(renderContext);
+                                var task = page.render(renderContext);
+                                task.promise.then(function() {
+                                    canvas.toBlob(function(blob){
+                                        Tesseract.recognize(blob)
+                                        .progress(message => console.log(message))
+                                        .catch(err => console.error(err))
+                                        .then(result => renderRecogizedText(result))
+                                        .finally(resultOrError => console.log(resultOrError));
+                                    });
+                                });
                                 canvas.dataset.currentPage = pageNumber;
                             }
                     );
