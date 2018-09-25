@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
         <script src='https://cdn.rawgit.com/naptha/tesseract.js/1.0.10/dist/tesseract.js'></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.550/pdf.js'></script>
+        <script src='https://cdn.rawgit.com/adactio/FitText.js/585b39b9099343a981d4e26789d8851874a96858/fittext.js'></script>
         <style type="text/css">
             #pdf-canvas {
                 width: 50vw;
@@ -13,8 +14,18 @@
                 display: flex;
             }
             #document-text {
+                position: relative;
                 flex: 1;
                 height: 65wv;
+            }
+            #document-text .ocr_line {
+                /* added by tesseract.js */
+                display: block;
+                position: absolute;
+            }
+            #document-text .ocr_line .ocrx_word {
+                font-size: inherit;
+                position: absolute;
             }
         </style>
     </head>
@@ -30,10 +41,63 @@
             function renderRecogizedText(result) {
                 document.getElementById('document-text').innerHTML = result.html;
                 foo = result;
+                parseBoundingBoxes();
             }
             function updateRecognitionStatus(message) {
                 document.getElementById('status').textContent = `${message.status}: ${Math.round(100 * message.progress)}%`;
             }
+
+            function parseBoundingBoxes() {
+                // Find all tesseract words and parse their title bbox information.
+                var lines = document.getElementsByClassName('ocr_line');  // tesseract line CSS class
+                // TODO: wtf is baseline?
+                var titleRegex = /^bbox (\d+) (\d+) (\d+) (\d+); baseline .*$/;  // bbox 152 90 747 111; baseline -0.003 -3
+                for (var i=0; i < lines.length; i++) {
+                    var element = lines[i];
+                    var title = element.title;
+                    var match = title.match(titleRegex);
+                    element.dataset.topX = match[1];
+                    element.dataset.topY = match[2];
+                    element.dataset.bottomX = match[3];
+                    element.dataset.bottomY = match[4];
+                    var height = `height: ${parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY)}px;`;
+                    var position = `top: ${element.dataset.topY}px; left: ${element.dataset.topX}px;`
+                    var fontSize = `font-size: ${0.9 * (parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY))}px;`;
+                    var css = height + position + fontSize;
+                    element.setAttribute('style', css);
+                    console.log([element, css]);
+                }
+
+
+                var elements = document.getElementsByClassName('ocrx_word');  // tesseract word CSS class
+                var titleRegex = /^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/;  // bbox 109 35 202 49; x_wconf 80
+                for (var i=0; i < elements.length; i++) {
+                    var element = elements[i];
+                    var title = element.title;
+                    var match = title.match(titleRegex);
+                    element.dataset.topX = match[1];
+                    element.dataset.topY = match[2];
+                    element.dataset.bottomX = match[3];
+                    element.dataset.bottomY = match[4];
+                    element.dataset.confidence = match[5];
+
+                    // Position and size so it should match the corresponding position in the PDF pane.
+                    var line = element.parentElement;
+                    var css = (
+                        `left: ${element.dataset.topX - line.dataset.topX}px; `
+                        // + `top: ${element.dataset.topY}px; ` +
+                        + `width: ${parseInt(element.dataset.bottomX) - parseInt(element.dataset.topX)}px;`
+                        // + `height: ${parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY)}px;`
+                        // + `font-size: ${parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY)}px;`
+                    );
+                    console.log([element, css]);
+                    element.setAttribute('style', css);
+                }
+            }
+            function positionOCRLines() {
+
+            }
+
             function processPDFBlob(blob) {
                 var dataURI = URL.createObjectURL(blob);
                 pdfjsLib.getDocument(dataURI).then(function(pdf) {
@@ -76,7 +140,7 @@
                             }
                     );
                 };
-                renderPage(1);
+                renderPage(2);
             });
         }
         var xhr = new XMLHttpRequest();
