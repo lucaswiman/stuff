@@ -48,7 +48,22 @@
             }
 
             function parseBoundingBoxes() {
-                // Find all tesseract words and parse their title bbox information.
+                // Find all tesseract elements and parse their title bbox information, positioning them to match the original.
+                var paragraphs = document.getElementsByClassName('ocr_par');
+                var titleRegex = /^bbox (\d+) (\d+) (\d+) (\d+)$/;
+                for (var i=0; i < paragraphs.length; i++) {
+                    var element = paragraphs[i];
+                    var title = element.title;
+                    var match = title.match(titleRegex);
+                    element.dataset.topX = match[1];
+                    element.dataset.topY = match[2];
+                    element.dataset.bottomX = match[3];
+                    element.dataset.bottomY = match[4];
+                    var lineCount = element.children.length;
+                    var totalHeight = parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY);
+                    element.dataset.averageLineHeight = totalHeight / lineCount;
+                }
+
                 var lines = document.getElementsByClassName('ocr_line');  // tesseract line CSS class
                 // TODO: wtf is baseline?
                 var titleRegex = /^bbox (\d+) (\d+) (\d+) (\d+); baseline .*$/;  // bbox 152 90 747 111; baseline -0.003 -3
@@ -60,14 +75,15 @@
                     element.dataset.topY = match[2];
                     element.dataset.bottomX = match[3];
                     element.dataset.bottomY = match[4];
-                    var height = `height: ${parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY)}px;`;
+                    var lineHeight = Math.max(parseFloat(element.parentElement.dataset.averageLineHeight), parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY));
+                    var height = `height: ${lineHeight}px;`;
                     var position = `top: ${element.dataset.topY}px; left: ${element.dataset.topX}px;`
-                    var fontSize = `font-size: ${0.9 * (parseInt(element.dataset.bottomY) - parseInt(element.dataset.topY))}px;`;
+                    var fontSize = `font-size: ${0.8 * lineHeight}px;`;
                     var css = height + position + fontSize;
                     element.setAttribute('style', css);
+
                     console.log([element, css]);
                 }
-
 
                 var elements = document.getElementsByClassName('ocrx_word');  // tesseract word CSS class
                 var titleRegex = /^bbox (\d+) (\d+) (\d+) (\d+); x_wconf (\d+)$/;  // bbox 109 35 202 49; x_wconf 80
