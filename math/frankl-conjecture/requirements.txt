@@ -1,0 +1,7 @@
+ipython
+numpy
+scipy
+jupyter
+networkx
+multiset
+sympy
