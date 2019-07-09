@@ -1,0 +1,5 @@
+disable-grayscale
+enable-grayscale
+*.dSYM
+a.out
+toggle-grayscale

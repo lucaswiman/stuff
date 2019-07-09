@@ -9,7 +9,7 @@
   unstage = reset HEAD
   undo-commit = reset --soft HEAD^
   reword-commit = "!f() { branch=`git symbolic-ref --short HEAD`; git checkout $1; git commit --amend; git checkout $branch; }; f"
-  
+
   cehckout = checkout
   chekcout = checkout
   chckout = checkout
@@ -76,3 +76,5 @@
 
 [merge]
   conflictstyle = diff3
+[interactive]
+    singleKey = true
