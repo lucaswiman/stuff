@@ -7,3 +7,6 @@
 [submodule "documents/20180424--sympy-pyninsula-talk/reveal.js"]
 	path = docs/20180424--sympy-pyninsula-talk/reveal.js
 	url = https://github.com/hakimel/reveal.js.git
+[submodule "python/notebooks/covid-19-data"]
+	path = python/notebooks/covid-19-data
+	url = git@github.com:nytimes/covid-19-data.git
