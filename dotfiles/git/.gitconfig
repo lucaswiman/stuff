@@ -1,6 +1,6 @@
 [user]
   name = Lucas Wiman
-  email = lucas.wiman@gmail.com
+  email = lucas.wiman@alphahealthai.com
 
 [alias]
   remove-merged = !git branch --merged | grep -v \"\\*\" | xargs --no-run-if-empty -n 1 git branch -d
