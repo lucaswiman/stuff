@@ -48,6 +48,7 @@ prompt-toolkit==3.0.6
 ptyprocess==0.6.0
 pycparser==2.20
 Pygments==2.6.1
+pygraphviz==1.6
 pymc3==3.9.2
 pyparsing==2.4.7
 pyrsistent==0.16.0
