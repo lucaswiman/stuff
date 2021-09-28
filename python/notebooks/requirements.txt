@@ -4,3 +4,4 @@ numpy
 scipy
 matplotlib
 bitsets  # https://bitsets.readthedocs.io/en/stable/
+aiofiles
