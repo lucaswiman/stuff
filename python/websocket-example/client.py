@@ -15,4 +15,4 @@ async def hello(uri):
 
 
 if __name__ == "__main__":
-    asyncio.run(hello("ws://localhost:8000/ws"))
+    asyncio.run(hello("ws://localhost:8000/ws/foo"))
