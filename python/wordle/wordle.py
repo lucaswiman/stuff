@@ -64,6 +64,8 @@ class Game:
             return "bad word; wrong length"
         elif guess not in self.all_words:
             return "not in dictionary"
+        elif not all(fact.consistent_with(guess) for fact in self.facts):
+            return "not consistent with previous guesses"
         if guess == self.word:
             print("Correct!")
             return
@@ -74,6 +76,18 @@ class Game:
             if all(fact.consistent_with(word) for fact in new_facts)
         ]
         print(f"words remaining: {len(self.words)}")
+
+    def autoplay(self):
+        num_guesses = 0
+        while True:
+            guess = random.choice(self.words)
+            num_guesses += 1
+            print(f"{num_guesses}: {guess}")
+            if len(self.words) == 1:
+                self.make_guess(guess)
+                return
+            else:
+                self.make_guess(guess)
 
 
 g = Game(5, word="horse")
