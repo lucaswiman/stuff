@@ -1,3 +1,4 @@
 #!/bin/bash
+# Passthrough to the official docker image. Will only see files in the CWD.
 
 docker run -v $(pwd):/data --workdir=/data -it swipl swipl "$@"
