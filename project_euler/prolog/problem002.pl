@@ -26,7 +26,7 @@ applicable(Fib, Max) :-
 
 problem2_helper(N, Acc, Max, Solution) :-
   fib(N, Fib),
-  writeln([N, Acc]),
+  % writeln([N, Acc]),
   (
     (not(applicable(Fib, Max)), Solution is Acc);
     % Not assigning N+3 to a variable yields the following vexing error:
@@ -39,7 +39,4 @@ problem2(Max, Solution) :-
   problem2_helper(2, 0, Max, Solution)
 .
 
-solve :- 
-  problem2(4000000, Solution),
-  writeln(Solution)
-.
+:- initialization problem2(4000000, Solution), writeln(Solution), halt.

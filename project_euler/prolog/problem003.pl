@@ -21,7 +21,9 @@ largest_odd_prime_factor(N, Div, BiggestFactor) :-
   )
 .
 
-solve :-
+:-
+  initialization
   largest_odd_prime_factor(600851475143, 3, BiggestFactor),
-  writeln(BiggestFactor)
+  writeln(BiggestFactor),
+  halt
 .

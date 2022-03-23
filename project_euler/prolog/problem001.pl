@@ -13,9 +13,11 @@ problem1(N, Solution) :-
   N > 0,
   inc(N, Inc),
   problem1(N-1, LastSolution),
-  Solution is LastSolution + Inc
+  Solution is LastSolution + Inc,
+  !
 .
 
 problem1(N, 0) :- N < 1.
 
 % [problem1]. problem1(999, Solution).
+:- initialization problem1(999, Solution), writeln(Solution), halt.
