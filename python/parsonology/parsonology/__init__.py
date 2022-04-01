@@ -216,7 +216,7 @@ class Node(namedtuple('Node', ('string', 'position', 'length', 'rule', 'children
         return self.text
 
 
-@attr.s(init=False, hash=True, cmp=True, str=False)
+@attr.s(init=False, hash=True, eq=True, str=False)
 class Literal(Rule):
     literal = attr.ib()
     length = attr.ib()
@@ -236,7 +236,7 @@ class Literal(Rule):
 Epsilon = Literal('')
 
 
-@attr.s(init=False, hash=True, cmp=True, repr=False, str=False)
+@attr.s(init=False, hash=True, eq=True, repr=False, str=False)
 class Concatenation(Rule):
     head = attr.ib()
     tail = attr.ib()
@@ -329,7 +329,7 @@ class Disjunction(tuple, Rule):
             yield match
 
 
-@attr.s(slots=True, hash=False, cmp=False, repr=False, str=False)
+@attr.s(slots=True, hash=False, eq=False, repr=False, str=False)
 class Reference(Rule):
     name = attr.ib()
     grammar = attr.ib()
@@ -374,7 +374,7 @@ def validate_charclass(regex):
 
 
 
-@attr.s(slots=True, hash=True, cmp=True, str=False, init=False)
+@attr.s(slots=True, hash=True, eq=True, str=False, init=False)
 class Charclass(Rule):
     """
     A regular expression character class.
@@ -409,7 +409,7 @@ class Charclass(Rule):
             yield Node(string, position, 1, rule=self)
 
 
-@attr.s(slots=True, hash=True, cmp=True, str=False, repr=False)
+@attr.s(slots=True, hash=True, eq=True, str=False, repr=False)
 class Ignored(Rule):
     """
     Class for marking that visitors should ignore matches from this rule. It can be
