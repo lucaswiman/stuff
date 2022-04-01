@@ -462,6 +462,10 @@ def plus(rule, grammar):
 def optional(rule, grammar):
     return rule | Epsilon.i
 
+_maybe = partial(optional, grammar=BOOTSTRAP_GRAMMAR)
+_star = partial(star, grammar=BOOTSTRAP_GRAMMAR)
+_plus = partial(plus, grammar=BOOTSTRAP_GRAMMAR)
+
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
 

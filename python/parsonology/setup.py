@@ -1,9 +1,7 @@
 from setuptools import setup
 import sys
 
-install_requires = ['six', 'toolz', 'pyrsistent']
-if sys.version_info < (3, 5):
-    install_requires.append('typing')
+install_requires = ['toolz', 'pyrsistent']
 
 setup(name='parsonology',
       version='0.0.0',
