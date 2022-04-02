@@ -440,14 +440,15 @@ class Ignored(Rule):
 class Optional(Rule):
     rule = attr.ib()
     _disjunction = None
-    def __init__(self, rule):
-        super().__init__(rule)
-        self.disjunction = rule | Epsilon
+
+    @property
+    def ignored(self):
+        return self.rule.ignored
 
     @property
     def disjunction(self):
         if self._disjunction is None:
-            self._disjunction = self.rule | Epsilon
+            self._disjunction = self.rule | Epsilon.i
         return self._disjunction
 
     def __repr__(self):
@@ -581,9 +582,9 @@ class GrammarVisitor(NodeVisitor):
     def __init__(self, grammar=None):
         self.constructed_grammar = Grammar() if grammar is None else grammar
 
-    @grammar.define_rule(ref('concatenation') + ((ref('_') + L("|").i + ref('_') + ref('disjunction')) | Epsilon.i))
+    @grammar.define_rule(ref('concatenation') + Optional(ref('_') + L("|").i + ref('_') + ref('disjunction')))
     def visit_disjunction(self, node, *disjuncts):
-        return reduce(operator.or_, disjuncts)
+        return reduce(operator.or_, filter(None, disjuncts))
 
     @grammar.define_rule(Charclass(r'[\w]') + (ref('identifier') | Epsilon).i)
     def visit_identifier(self, node, *_):
