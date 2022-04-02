@@ -564,7 +564,7 @@ class GrammarVisitor(NodeVisitor):
         return (rule_assignment, ) + names_and_rules
 
     grammar['_'] = Optional((ref('whitespace') + Optional(ref('comment') + ref('_')))).i
-    grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
+    grammar['whitespace'] = Plus(Charclass(r'[\s]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
     grammar['escaped_quote_body'] = ((Charclass(r'[^"]') | L('\\"')) + ref('escaped_quote_body')) | Epsilon
