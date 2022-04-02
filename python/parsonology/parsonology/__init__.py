@@ -1,6 +1,7 @@
 import itertools
 import operator
 import string
+import dataclasses
 from re import compile as re_compile, match as re_match
 from ast import literal_eval
 from collections import namedtuple, OrderedDict
@@ -8,7 +9,7 @@ from functools import reduce, partial
 from typing import Set
 
 import attr
-from pyrsistent import pset
+from pyrsistent import pset, v
 
 
 class Grammar(OrderedDict):
@@ -435,6 +436,32 @@ class Ignored(Rule):
             )
 
 
+@attr.s(slots=False, hash=True, eq=True, str=False, repr=False)
+class Optional(Rule):
+    rule = attr.ib()
+    _disjunction = None
+    def __init__(self, rule):
+        super().__init__(rule)
+        self.disjunction = rule | Epsilon
+
+    @property
+    def disjunction(self):
+        if self._disjunction is None:
+            self._disjunction = self.rule | Epsilon
+        return self._disjunction
+
+    def __repr__(self):
+        return f"Optional({self.rule!r})"
+
+    def __str__(self):
+        return f'{self.rule}?'
+
+    def matches_at_position(self, string, position, stack=pset()):
+        for match in self.disjunction.matches_at_position(string, position, stack):
+            yield Node(
+                string, position, match.length, rule=self, children=(match, )
+            )
+
 class VisitationError(Exception):
     pass
 
@@ -447,24 +474,79 @@ BOOTSTRAP_GRAMMAR = Grammar()
 ref, L = partial(Reference, grammar=BOOTSTRAP_GRAMMAR), Literal
 
 
-def star(rule, grammar):
-    identifier_name = 'star_%s' % len(grammar)
-    grammar[identifier_name] = (rule + Reference(identifier_name, grammar)) | Epsilon.i
-    return grammar[identifier_name]
+@attr.s(slots=True, hash=True, eq=True, str=False, repr=False)
+class Plus(Rule):
+    rule = attr.ib()
 
+    def __repr__(self):
+        return f"Plus({self.rule!r})"
 
-def plus(rule, grammar):
-    identifier_name = 'plus_%s' % len(grammar)
-    grammar[identifier_name] = rule + (Reference(identifier_name, grammar) | Epsilon.i)
-    return grammar[identifier_name]
+    def __str__(self):
+        return f'{self.rule}+'
 
+    def matches_at_position(self, string, position, stack=pset()):
+        match_iterators = [self.rule.matches_at_position(string, position, stack=stack)]
+        children = v()
+        match_length = 0
+        while match_iterators:
+            it = match_iterators.pop()
+            match: Node = next(it, None)
+            if match:
+                if (self, match.position) in stack:
+                    match_iterators.append(it)
+                    continue
+                else:
+                    match_length += match.length
+                    children = children.append(match)
+                    stack.add((self, position + match_length))
+                    match_iterators.append(it)
+                    match_iterators.append(
+                        self.rule.matches_at_position(string, position + match_length, stack=stack)
+                    )
+                    yield Node(string=string, position=position, length=match_length, rule=self, children=children)
+            else:
+                if children:
+                    last_match = children[-1]
+                    children = children[:-1]
+                    match_length -= last_match.length
+                else:
+                    assert match_length == 0
+                    assert not match_iterators
+                    return
+    
 
-def optional(rule, grammar):
-    return rule | Epsilon.i
+@attr.s(slots=True, hash=True, eq=True, str=False, repr=False)
+class Star(Rule):
+    rule = attr.ib()
+    _plus_rule = None
 
-_maybe = partial(optional, grammar=BOOTSTRAP_GRAMMAR)
-_star = partial(star, grammar=BOOTSTRAP_GRAMMAR)
-_plus = partial(plus, grammar=BOOTSTRAP_GRAMMAR)
+    @property
+    def plus_rule(self):
+        if self._plus_rule is None:
+            self._plus_rule = Plus(self.rule)
+        return self._plus_rule
+
+    def matches_at_position(self, string, position, stack=pset()):
+        yield Node(string=string, position=position, length=0, rule=self, children=())
+        stack.add((self, position))
+        for match in self.plus_rule.matches_at_position(string, position, stack=stack):
+            if match.length == 0:
+                # We already have a zero-length match at this location, so no need to add another one.
+                continue
+            yield Node(
+                string=string,
+                position=position,
+                length=match.length,
+                rule=self,
+                children=match.children,
+            ) 
+
+    def __repr__(self):
+        return f"Star({self.rule!r})"
+
+    def __str__(self):
+        return f'{self.rule}*'
+
 
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
@@ -480,10 +562,10 @@ class GrammarVisitor(NodeVisitor):
     def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
         return (rule_assignment, ) + names_and_rules
 
-    grammar['_'] = ((ref('whitespace') + (ref('comment') + ref('_') | Epsilon)) | Epsilon).i
+    grammar['_'] = Optional((ref('whitespace') + Optional(ref('comment') + ref('_')))).i
     grammar['whitespace'] = (Charclass(r'[\s]') + (ref('whitespace') | Epsilon)).i
     grammar['comment'] = Literal('#') + ref('EOL')
-    grammar['EOL'] = star(Charclass(r'[^\n]'), grammar) + Literal('\n')
+    grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
     grammar['escaped_quote_body'] = ((Charclass(r'[^"]') | L('\\"')) + ref('escaped_quote_body')) | Epsilon
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
@@ -521,8 +603,8 @@ class GrammarVisitor(NodeVisitor):
 
     @grammar.define_rule(ref('unquantified_term') + ref('_') + Charclass(r'[*+?]'))
     def visit_quantified(self, node, term, quantifier):
-        builders = {'*': star, '+': plus, '?': optional}
-        return builders[quantifier](term, self.grammar)
+        builders = {'*': lambda rule: Optional(Plus(rule=term)), '+': Plus, '?': Optional}
+        return builders[quantifier](rule=term)
 
     @grammar.define_rule(ref('term') + ((ref('_') + ref('concatenation')) | Epsilon.i))
     def visit_concatenation(self, node, *terms):
