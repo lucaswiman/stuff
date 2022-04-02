@@ -91,6 +91,12 @@ def test_parsing_some_grammars():
     ''').parse('barbazz')
     assert Grammar('foo = "bar" baz  # comment\nbaz = "ba" zz\nzz = "zz"').parse('barbazz')
 
+    assert Grammar("""
+        foo = "baz".ignore
+    """).parse("baz")
+    assert Grammar("""
+        foo = "baz".i
+    """).parse("baz")
 
 # @pytest.mark.xfail(reason='FIXME')
 def test_parsing_some_grammars_with_weird_comment_whitespace():
