@@ -567,7 +567,7 @@ class GrammarVisitor(NodeVisitor):
     grammar['whitespace'] = Plus(Charclass(r'[\s]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
-    grammar['escaped_quote_body'] = ((Charclass(r'[^"]') | L('\\"')) + ref('escaped_quote_body')) | Epsilon
+    grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
 
@@ -594,7 +594,7 @@ class GrammarVisitor(NodeVisitor):
     def visit_reference(self, node, identifier):
         return Reference(identifier, grammar=self.constructed_grammar)
 
-    @grammar.define_rule(((Literal('\]') | Charclass(r'[^\]]')) + ref('charclass_body')) | Epsilon.i)
+    @grammar.define_rule(((Literal('\\]') | Charclass(r'[^\]]')) + ref('charclass_body')) | Epsilon.i)
     def visit_charclass_body(self, node, *_):
         return node.text
 
