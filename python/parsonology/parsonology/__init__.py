@@ -504,9 +504,9 @@ class Plus(Rule):
                     match_iterators.append(
                         self.rule.matches_at_position(string, position + match_length, stack=stack)
                     )
-                    yield Node(string=string, position=position, length=match_length, rule=self, children=children)
             else:
                 if children:
+                    yield Node(string=string, position=position, length=match_length, rule=self, children=children)
                     last_match = children[-1]
                     children = children[:-1]
                     match_length -= last_match.length
@@ -528,8 +528,7 @@ class Star(Rule):
         return self._plus_rule
 
     def matches_at_position(self, string, position, stack=pset()):
-        yield Node(string=string, position=position, length=0, rule=self, children=())
-        stack.add((self, position))
+        stack = stack.add((self, position))
         for match in self.plus_rule.matches_at_position(string, position, stack=stack):
             if match.length == 0:
                 # We already have a zero-length match at this location, so no need to add another one.
@@ -541,6 +540,8 @@ class Star(Rule):
                 rule=self,
                 children=match.children,
             ) 
+        yield Node(string=string, position=position, length=0, rule=self, children=())
+        stack = stack.remove((self, position))
 
     def __repr__(self):
         return f"Star({self.rule!r})"
@@ -586,7 +587,7 @@ class GrammarVisitor(NodeVisitor):
     def visit_disjunction(self, node, *disjuncts):
         return reduce(operator.or_, filter(None, disjuncts))
 
-    @grammar.define_rule(Charclass(r'[\w]') + (ref('identifier') | Epsilon).i)
+    @grammar.define_rule(Plus(Charclass(r'[\w]')))
     def visit_identifier(self, node, *_):
         return node.text
 
