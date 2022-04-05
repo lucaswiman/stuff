@@ -594,10 +594,11 @@ class GrammarVisitor(NodeVisitor):
 
     grammar['inline_ws'] = Star(Charclass(r'[ \t\v\f\r]')).i
     grammar['continuation'] = ref('inline_ws') + Literal("\\") + ref('inline_ws') + (ENDL | ref("comment"))
+
     grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
     grammar['ws'] = Plus(Charclass(r'[ \t\v\f\r\n]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
-    grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
+    grammar['EOL'] = Star(Charclass(r'[^\n]')) + ENDL
     grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
     grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
     grammar['term'] = ref('quantified') | ref('unquantified_term')
