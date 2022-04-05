@@ -588,7 +588,7 @@ class GrammarVisitor(NodeVisitor):
         return self.constructed_grammar
 
     @grammar.define_rule(
-        ref('_') + ref('rule_assignment') + (ref('ws').i + ref('rule_assignments') | ref('_')))
+        ref('EMPTY_LINES') + ref('rule_assignment') + (ref('EMPTY_LINES').i + ref('rule_assignments') | ref('_')))
     def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
         return (rule_assignment, ) + names_and_rules
 
@@ -597,8 +597,9 @@ class GrammarVisitor(NodeVisitor):
     grammar['continuation'] = ref('maybe_inline_ws') + Literal("\\") + ref('maybe_inline_ws') + (ENDL | ref("comment"))
     grammar['statement_end'] = ref('maybe_inline_ws') + (ref('comment') | ENDL)
 
-    grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
-    grammar['ws'] = Plus(Charclass(r'[ \t\v\f\r\n]')).i
+    grammar['_'] = (ref('maybe_inline_ws') | ref('continuation')).i
+    grammar['ws'] = Plus(Charclass(r'[\s]')).i
+    grammar['EMPTY_LINES'] = Star(Charclass(r'[\s]') | ref("comment")).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + ENDL
     grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
