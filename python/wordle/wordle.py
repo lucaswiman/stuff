@@ -1,14 +1,26 @@
 from typing import *
 from typing import NamedTuple
 import random
+from functools import lru_cache
+from collections import Counter
 
-
-def load_dictionary(n: int, words_file='/usr/share/dict/words') -> Set[str]:
+@lru_cache
+def load_dictionary(n: int, words_file='/usr/share/dict/words') -> FrozenSet[str]:
     """
     Parse the words file and return a list of words of length n.
     """
     with open(words_file, 'r') as f:
-        return {word for line in f if len(word := line.lower().strip()) == n}
+        return frozenset(word for line in f if len(word := line.lower().strip()) == n)
+
+
+def get_letter_dist(n: int) -> Dict[str, float]:
+    words = load_dictionary(n)
+    c = Counter("".join(words))
+    total_letters = sum(c.values())
+    return {letter: count / total_letters for letter, count in c.items()}
+
+
+letter_dist = get_letter_dist(5)
 
 
 class Fact(NamedTuple):
@@ -83,12 +95,21 @@ class Game:
             guess = random.choice(self.words)
             num_guesses += 1
             print(f"{num_guesses}: {guess}")
-            if len(self.words) == 1:
-                self.make_guess(guess)
+            self.make_guess(guess)
+            if guess == self.word:
                 return
-            else:
-                self.make_guess(guess)
 
 
+# g = Game(5, word="horse")
+# g.make_guess("blame")
 g = Game(5, word="horse")
-g.make_guess("blame")
+g.autoplay()
+
+# quick brown flaxy depth  # disjoint
+# "".join((set("abcdefghijklmnopqrstuvwxyz") - set("quick")) - set("brown"))
+# "".join((set("abcdefghijklmnopqrstuvwxyz") - set("quick")) - set("brown") - set("flaxy"))
+#
+# depth
+# flaxy
+# brown
+# quick

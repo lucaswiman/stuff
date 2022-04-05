@@ -22,16 +22,21 @@ parse_argv(_, _, _) :-
 % https://stackoverflow.com/a/29168051/303931
 
 sunrise_sunset(Lat, Lon, Sunrise, Sunset):-
-  format(atom(Url), 'https://api.sunrise-sunset.org/json?lat=~w&lng=~w', [Lat, Lon]),
+  format(atom(Url), 'https://api.sunrise-sunset.org/json?formatted=0&lat=~w&lng=~w', [Lat, Lon]),
+  writeln(Url),
   setup_call_cleanup(
     http_open(
       Url,
       In,
       [request_header('Accept'='application/json')]),
     json_read_dict(In, Dict),
-    close(In)
-  ),
-  writeln(Dict),  % TODO: extract out data from the Dict and print it to screen.
+    close(In)),
+  parse_time(Dict.results.sunrise, SunriseUtcStamp),
+  stamp_date_time(SunriseUtcStamp, D),  % TODO: time zone hell
+  date_time_value('time', D, SunriseLocal),
+  writeln(SunriseLocal),
+  writeln(SunriseUtc),
+  writeln(Dict)  % TODO: extract out data from the Dict and print it to screen.
 .
 
 main :- 
