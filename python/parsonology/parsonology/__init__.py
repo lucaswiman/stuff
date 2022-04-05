@@ -593,7 +593,7 @@ class GrammarVisitor(NodeVisitor):
         return (rule_assignment, ) + names_and_rules
 
     grammar['inline_ws'] = Star(Charclass(r'[ \t\v\f\r]')).i
-    grammar['continuation'] = ref('inline_ws') + Literal("\\") + ref('inline_ws') + ENDL
+    grammar['continuation'] = ref('inline_ws') + Literal("\\") + ref('inline_ws') + (ENDL | ref("comment"))
     grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
     grammar['ws'] = Plus(Charclass(r'[ \t\v\f\r\n]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
