@@ -560,12 +560,12 @@ class GrammarVisitor(NodeVisitor):
         return self.constructed_grammar
 
     @grammar.define_rule(
-        ref('_') + ref('rule_assignment') + (ref('whitespace').i + ref('rule_assignments') | ref('_')))
+        ref('_') + ref('rule_assignment') + (ref('ws').i + ref('rule_assignments') | ref('_')))
     def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
         return (rule_assignment, ) + names_and_rules
 
-    grammar['_'] = Optional((ref('whitespace') + Optional(ref('comment') + ref('_')))).i
-    grammar['whitespace'] = Plus(Charclass(r'[\s]')).i
+    grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
+    grammar['ws'] = Plus(Charclass(r'[\s]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
     grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
