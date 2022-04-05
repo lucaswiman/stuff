@@ -550,6 +550,34 @@ class Star(Rule):
         return f'{self.rule}*'
 
 
+
+
+
+class _EOS(Rule):
+    """
+    Special singleton rule that matches at the end of the string.
+    """
+    def matches_at_position(self, string, position, stack=pset()):
+        if position == len(string):
+            yield Node(
+                string=string,
+                position=position,
+                length=0,
+                rule=self,
+                children=(),
+            )
+
+    def __repr__(self):
+        return f"EOS"
+
+    def __str__(self):
+        return f'EOS'
+
+
+EOS = _EOS()
+EOL = Literal("\r\n") | Literal("\n")
+ENDL = EOL | EOS
+
 class GrammarVisitor(NodeVisitor):
     grammar = BOOTSTRAP_GRAMMAR
 
@@ -564,8 +592,10 @@ class GrammarVisitor(NodeVisitor):
     def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
         return (rule_assignment, ) + names_and_rules
 
+    grammar['inline_ws'] = Star(Charclass(r'[ \t\v\f\r]')).i
+    grammar['continuation'] = ref('inline_ws') + Literal("\\") + ref('inline_ws') + ENDL
     grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
-    grammar['ws'] = Plus(Charclass(r'[\s]')).i
+    grammar['ws'] = Plus(Charclass(r'[ \t\v\f\r\n]')).i
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + Literal('\n')
     grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
