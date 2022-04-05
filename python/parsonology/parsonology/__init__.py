@@ -592,8 +592,10 @@ class GrammarVisitor(NodeVisitor):
     def visit_rule_assignments(self, node, rule_assignment, names_and_rules=()):
         return (rule_assignment, ) + names_and_rules
 
-    grammar['inline_ws'] = Star(Charclass(r'[ \t\v\f\r]')).i
-    grammar['continuation'] = ref('inline_ws') + Literal("\\") + ref('inline_ws') + (ENDL | ref("comment"))
+    grammar['inline_ws'] = Plus(Charclass(r'[ \t\v\f\r]')).i
+    grammar['maybe_inline_ws'] = Star(Charclass(r'[ \t\v\f\r]')).i
+    grammar['continuation'] = ref('maybe_inline_ws') + Literal("\\") + ref('maybe_inline_ws') + (ENDL | ref("comment"))
+    grammar['statement_end'] = ref('maybe_inline_ws') + (ref('comment') | ENDL)
 
     grammar['_'] = Optional((ref('ws') + Optional(ref('comment') + ref('_')))).i
     grammar['ws'] = Plus(Charclass(r'[ \t\v\f\r\n]')).i
@@ -608,7 +610,7 @@ class GrammarVisitor(NodeVisitor):
     grammar['rule_name'] = ref('identifier')
 
     grammar['parenthesized'] = L("(").i + ref('rule_definition') + L(")").i
-    grammar['rule_assignment'] = ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition')
+    grammar['rule_assignment'] = ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition') + ref('statement_end').i
     grammar['ignored_term'] = ref('term') + (L('.') + (L('ignore') | L('i'))).i
 
     def __init__(self, grammar=None):
