@@ -95,7 +95,7 @@ def test_parsing_some_grammars():
         foo = "baz".ignore
     """).parse("baz")
     assert Grammar("""
-        foo = "baz".i
+        foo = "baz".ignore
     """).parse("baz")
 
 # @pytest.mark.xfail(reason='FIXME')

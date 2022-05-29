@@ -319,15 +319,22 @@ class Disjunction(tuple, Rule):
 
     def matches_at_position(self, string, position, stack=pset()):
         # Do a breadth-first search over the set of matches.
-        if (self, position) in stack:
-            # Prevent infinite recursion for zero-length terminals
-            return
-        stack = stack.add((self, position))
-        matches = itertools.chain(*(
-            disjunct.matches_at_position(string, position, stack=stack)
-            for disjunct in self))
-        for match in matches:
-            yield match
+        # print(f"hello {string=} {self=}")
+        def resolve(r):
+            seen = set()
+            while isinstance(r, Reference):
+                if r in seen:
+                    raise ValueError("circular reference loop")
+                seen.add(r)
+                r = r.referent
+            return r
+        for disjunct in self:
+            rule_actual = resolve(disjunct)
+            if (rule_actual, position) in stack:
+                # Prevent infinite recursion for zero-length terminals
+                continue
+            for match in disjunct.matches_at_position(string, position, stack=stack.add((rule_actual, position))):
+                yield match
 
 
 @attr.s(slots=True, hash=False, eq=False, repr=False, str=False)
@@ -362,7 +369,7 @@ class Reference(Rule):
 
     def matches_at_position(self, string, position, stack=pset()):
         if (self, position) in stack:
-            # Prevent infinite recursion for zero-length matches.
+            # P revent infinite recursion for zero-length matches.
             return
         stack = stack.add((self, position))
         for match in self.referent.matches_at_position(string, position, stack=stack):
@@ -603,7 +610,7 @@ class GrammarVisitor(NodeVisitor):
     grammar['comment'] = Literal('#') + ref('EOL')
     grammar['EOL'] = Star(Charclass(r'[^\n]')) + ENDL
     grammar['escaped_quote_body'] = Star(Charclass(r'[^"]') | L('\\"'))
-    grammar['unquantified_term'] = ref('reference') | ref('charclass') | ref('literal') | ref('parenthesized')
+    grammar['unquantified_term'] = ref('charclass') | ref('literal') | ref('parenthesized') | ref('reference') | ref('ignored_term') 
     grammar['term'] = ref('quantified') | ref('unquantified_term')
 
     # Note that we want disjunction to have lower precedence than concatenation.
@@ -612,7 +619,10 @@ class GrammarVisitor(NodeVisitor):
 
     grammar['parenthesized'] = L("(").i + ref('rule_definition') + L(")").i
     grammar['rule_assignment'] = ref('rule_name') + ref('_') + L("=").i + ref('_') + ref('rule_definition') + ref('statement_end').i
-    grammar['ignored_term'] = ref('term') + (L('.') + (L('ignore') | L('i'))).i
+
+    @grammar.define_rule(ref('unquantified_term') + (L('.') + (L('ignore') | L('i'))).i)
+    def visit_ignored_term(self, term):
+        return term.ignore
 
     def __init__(self, grammar=None):
         self.constructed_grammar = Grammar() if grammar is None else grammar
