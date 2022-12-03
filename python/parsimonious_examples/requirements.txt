@@ -1,3 +1,4 @@
-parsimonious==0.6.2
-nose
+git+ssh://git@github.com/lucaswiman/parsimonious.git@3e3bc95961f3cde4f8d7b7f9124c038e6a442b85
 sympy
+pytest
+regex
