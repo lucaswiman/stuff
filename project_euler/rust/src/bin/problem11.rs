@@ -21,6 +21,42 @@
 //
 // What is the greatest product of four adjacent numbers in the same direction (up, down, left, right, or diagonally) in the 20x20 grid?
 
-fn main() {
-  
+use reqwest;
+use scraper::{Html, Selector};
+use html2text;
+
+async fn read_url(url: &str, selector: &str) -> Option<String> {
+
+  // Send a GET request awaitnd await for the HTML response.
+  let resp = reqwest::get(url);
+  let body = Result::unwrap(resp.await).text().await.unwrap();
+
+  // Parse the HTML document body.
+  let document = Html::parse_document(&body);
+
+  // Use the CSS selector you're interested in.
+  let selector = Selector::parse(selector).unwrap();
+
+  // Find the first element matching the selector.
+  return match document.select(&selector).next() {
+    Some(element) => {
+      let inner_html = element.inner_html();
+      Some(html2text::from_read(inner_html.as_bytes(), usize::MAX))
+    },
+    None => {
+      None
+    }
+  }
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // The URL you want to download HTML from.
+    let fut = read_url( "https://projecteuler.net/problem=11", "div.problem_content p.monospace");
+    let data = fut.await;
+    match data {
+      Some(data) => println!("{}", data),
+      None => println!("No data found")
+    }
+    Ok(())
 }
