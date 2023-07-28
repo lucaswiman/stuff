@@ -49,14 +49,27 @@ async fn read_url(url: &str, selector: &str) -> Option<String> {
   }
 }
 
+fn parse_grid(data: &str) -> Vec<Vec<u64>> {
+  let mut grid: Vec<Vec<u64>> = Vec::new();
+  for line in data.lines() {
+    let mut row: Vec<u64> = Vec::new();
+    for num in line.split_whitespace() {
+      row.push(num.parse::<u64>().unwrap());
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The URL you want to download HTML from.
     let fut = read_url( "https://projecteuler.net/problem=11", "div.problem_content p.monospace");
     let data = fut.await;
-    match data {
-      Some(data) => println!("{}", data),
-      None => println!("No data found")
+    let grid_str: String = data.unwrap();
+    let grid = parse_grid(&grid_str);
+    for row in grid.iter() {
+      println!("{:?}", row);
     }
     Ok(())
 }
