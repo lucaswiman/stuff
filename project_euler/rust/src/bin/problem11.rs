@@ -49,6 +49,8 @@ async fn read_url(url: &str, selector: &str) -> Option<String> {
   }
 }
 
+
+
 fn parse_grid(data: &str) -> Vec<Vec<u64>> {
   let mut grid: Vec<Vec<u64>> = Vec::new();
   for line in data.lines() {
@@ -61,6 +63,20 @@ fn parse_grid(data: &str) -> Vec<Vec<u64>> {
   return grid;
 }
 
+fn contiguous_sequence(grid: Vec<Vec<u64>>, x: usize, y: usize, dx: i32, dy: i32,  length: usize) -> Option<Vec<u64>> {
+  let mut seq: Vec<u64> = Vec::new();
+  for i in 0..length {
+    let x_i: i32 = (x as i32) + (i as i32) * dx;
+    let y_i: i32 = (y as i32) + (i as i32) * dy;
+    if (x_i < 0) || (y_i < 0) || (x_i >= (grid.len() as i32)) || y_i >= (grid[x_i as usize].len() as i32) {
+      return None;
+    }
+    seq.push(grid[x as usize][y as usize]);
+  }
+  return Some(seq);
+}
+
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The URL you want to download HTML from.
@@ -68,8 +84,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data = fut.await;
     let grid_str: String = data.unwrap();
     let grid = parse_grid(&grid_str);
+    let mut max_product: u64 = 1;
+    for x in 0..grid.len() {
+      for y in 0..grid[x].len() {
+        let mut seq: Vec<Option<Vec<u64>>> = Vec::new();
+        seq.push(contiguous_sequence(grid.clone(), x, y, 1, 0, 4));
+        seq.push(contiguous_sequence(grid.clone(), x, y, 0, 1, 4));
+        seq.push(contiguous_sequence(grid.clone(), x, y, 1, 1, 4));
+        seq.push(contiguous_sequence(grid.clone(), x, y, 1, -1, 4));
+        seq.push(contiguous_sequence(grid.clone(), x, y, -1, 1, 4));
+        seq.push(contiguous_sequence(grid.clone(), x, y, -1, -1, 4));
+        for s in seq {
+          match s {
+            Some(v) => {
+              let product: u64 = v.iter().product();
+              if product > max_product {
+                max_product = product;
+              }
+            },
+            None => {}
+          }
+        }
+      }
+    }
     for row in grid.iter() {
       println!("{:?}", row);
     }
+    println!("Max product: {}", max_product);
     Ok(())
 }
