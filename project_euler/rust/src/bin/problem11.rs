@@ -71,7 +71,7 @@ fn contiguous_sequence(grid: Vec<Vec<u64>>, x: usize, y: usize, dx: i32, dy: i32
     if (x_i < 0) || (y_i < 0) || (x_i >= (grid.len() as i32)) || y_i >= (grid[x_i as usize].len() as i32) {
       return None;
     }
-    seq.push(grid[x as usize][y as usize]);
+    seq.push(grid[x_i as usize][y_i as usize]);
   }
   return Some(seq);
 }
@@ -106,9 +106,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
           }
         }
       }
-    }
-    for row in grid.iter() {
-      println!("{:?}", row);
     }
     println!("Max product: {}", max_product);
     Ok(())
