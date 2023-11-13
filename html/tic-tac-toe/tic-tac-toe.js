@@ -29,11 +29,14 @@ class TicTacToe extends HTMLElement {
                   font-size: 24px;         /* Font size for X and O */
                   aspect-ratio: 1;         /* Makes each cell a square */
               }
+              .winning-cell {
+                  background-color: lightgreen;
+              }
             </style>
             <h2 id="player">${this.outcome === null ? 'Current Player: ' + this.currentPlayer : this.outcome}</h2>
             <div id="board">
                 ${this.gameState.map((cell, index) => `
-                    <div class="cell" data-index="${index}">
+                    <div class="cell ${this.winningSquares.includes(index) ? 'winning-cell' : ''}" data-index="${index}">
                         ${cell ? cell : ''}
                     </div>
                 `).join('')}
@@ -57,6 +60,7 @@ class TicTacToe extends HTMLElement {
 
     setupBoard(board) {
       board.gameState = Array(9).fill(null);
+      board.winningSquares = [];
       board.currentPlayer = 'X';
       board.isGameOver = false;
       board.outcome = null;
@@ -68,7 +72,9 @@ class TicTacToe extends HTMLElement {
             return;
         }
         this.gameState[index] = this.currentPlayer;
-        this.outcome = this.checkForWinner();
+        const outcome = this.checkForWinner();
+        this.outcome = outcome.outcome;
+        this.winningSquares = outcome.winningSquares;
         if (this.outcome !== null) {
           this.isGameOver = true;
         } else {
@@ -93,17 +99,26 @@ class TicTacToe extends HTMLElement {
             const [a, b, c] = lines[i];
             if (this.gameState[a] && this.gameState[a] === this.gameState[b] && this.gameState[a] === this.gameState[c]) {
               this.isGameOver = true;
-              return `Winner: ${this.gameState[a]}`;
+              return {
+                outcome: `Winner: ${this.gameState[a]}`,
+                winningSquares: lines[i],
+              };
             }
         }
 
         // Check for draw or continue the game
         if (!this.gameState.includes(null)) {
           this.isGameOver = true;
-          return 'Draw';
+          return {
+            outcome: 'Draw',
+            winningSquares: [],
+          };
         }
 
-        return null;
+        return {
+          outcome: null,
+          winningSquares: [],
+        };
     }
 }
 
